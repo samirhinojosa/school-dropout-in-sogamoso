@@ -6,6 +6,7 @@ import numpy as np
 from math import prod
 
 
+
 def memory_usage(df):
     """
     Method used to calculate the used of memory based on a specific DataFrame.
