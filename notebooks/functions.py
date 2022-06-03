@@ -28,6 +28,25 @@ def memory_usage(df):
     return (memory_usage)
 
 
+def percentage_missing_values(df):
+    """
+    Method used to calculate the % of missing values in a specific dataset.
+
+    Parameters:
+    -----------------
+        df (pandas.DataFrame): Dataset to analyze.
+        
+    Returns:
+    -----------------
+        percentage_of_NaN (int) : Percentage of missing-values.
+    """
+    
+    total_of_NaN = df.isna().sum().sum()
+    percentage_of_NaN = round((total_of_NaN/prod(df.shape))* 100, 2)
+    
+    return percentage_of_NaN
+
+
 def df_analysis(df, *args, **kwargs):
     """
     Method used to analyze a DataFrame.
