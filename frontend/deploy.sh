@@ -1,0 +1,1 @@
+gcloud run deploy --port 8501 --timeout=10m --max-instances 1
