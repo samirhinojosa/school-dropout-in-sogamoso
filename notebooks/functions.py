@@ -93,7 +93,7 @@ def df_analysis(df, *args, **kwargs):
 
         # Identifying empty columns
         empty_cols = [col for col in df.columns if df[col].isna().all()]
-
+                    
         # Calculating the memory usage based on dataframe.info()
         memory = memory_usage(df)
         
