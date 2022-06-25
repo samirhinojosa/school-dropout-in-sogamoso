@@ -4,15 +4,13 @@ from PIL import Image
 ########################################################
 # Loading images to the website
 ########################################################
-#logo = Image.open("asserts/logo-min.png")
 icon = Image.open("asserts/sogamoso.ico")
-
 
 ########################################################
 # General settings
 ########################################################
 st.set_page_config(
-    page_title="General Statistics - Sogamoso School dropout - ",
+    page_title="General Statistics - Sogamoso School dropout",
     page_icon=icon,
     layout="wide",
     initial_sidebar_state="expanded",
@@ -29,7 +27,6 @@ st.set_page_config(
         '''
     }
 )
-
 
 ########################################################
 # General styles
@@ -74,20 +71,11 @@ config = {
     "displaylogo": False
 }
 
-
 ########################################################
 # Page information
 ########################################################
-
-st_title = '<h1 style="color:#262730; margin-bottom:0; padding: 1.25rem 0px 0rem;">General Statistics</h1>'
+st_title = '<h1 style="color:#262730; margin-bottom:0; padding: 1.25rem 0px 0rem;">Sogamoso school dropout</h1>'
 st_title_hr = '<hr style="background-color:#F0F2F6; width:60%; text-align:left; margin-left:0; margin-top:0">'
 st.markdown(st_title, unsafe_allow_html=True)
 st.markdown(st_title_hr, unsafe_allow_html=True)
-
-
-
-
-
-st.markdown("# General Statistics ❄️")
-st.sidebar.markdown("# General Statistics ❄️")
 
