@@ -59,7 +59,7 @@ st.markdown(f""" <style>
     }} </style> """, unsafe_allow_html=True
 )
 
-hide_menu_style = """
+hide_menu_style = """ 
         <style>
         footer {visibility: hidden;}
         </style>
