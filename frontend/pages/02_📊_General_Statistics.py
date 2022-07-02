@@ -88,10 +88,55 @@ st.markdown(st_title, unsafe_allow_html=True)
 st.markdown(st_title_hr, unsafe_allow_html=True)
 
 ########################################################
-# Students graphs
+# Update information
 ########################################################
 
 df_students = pd.read_csv(os.path.join(os.path.dirname(__file__), "../to_delete/datasets/df_students.csv"))
+
+# Variable EDAD: Agrupar/Categorizar dado los atípicos que tiene
+def age_clasification(age):
+    if 0 <= age <= 5:
+        new_age = '0-5'
+    if 6 <= age <= 8:
+        new_age = '6-8'
+    if 9 <= age <= 10:
+        new_age = '9-10'
+    if 11 <= age <= 20:
+        new_age = str(age)
+    if 21 <= age <= 22:
+        new_age = '21-22'
+    if 23 <= age <= 25:
+        new_age = '23-25'
+    if 26 <= age:
+        new_age = '26+'
+    return new_age
+
+
+def group_vars(df_students):
+
+    # Variable DISCAPACIDAD: pasar de categórica a dicotómica
+    df_students.loc[df_students['DISCAPACIDAD'] != 'NO APLICA', 'DISCAPACIDAD'] = 1
+    df_students.loc[df_students['DISCAPACIDAD'] == 'NO APLICA', 'DISCAPACIDAD'] = 0
+
+    # Variable ESTRATO: Agrupar/Categorizar dado los atípicos que tiene
+    df_students.loc[df_students['ESTRATO'] == 'ESTRATO 4', 'ESTRATO'] = 'ESTRATO ALTO'
+    df_students.loc[df_students['ESTRATO'] == 'ESTRATO 5', 'ESTRATO'] = 'ESTRATO ALTO'
+    df_students.loc[df_students['ESTRATO'] == 'ESTRATO 6', 'ESTRATO'] = 'ESTRATO ALTO'
+    df_students['ESTRATO'].unique()
+    df_students['ESTRATO'].value_counts()
+
+
+    df_students['CATEGORICAL_EDAD'] = df_students['EDAD'].apply(age_clasification)
+
+    return df_students
+
+df_students = group_vars(df_students)
+
+
+########################################################
+# Students graphs - trend
+########################################################
+
 
 tabla_fin = pd.DataFrame(df_students.groupby(["ESTADO",'ANO'])['PER_ID_ANO'].count()).reset_index()
 tabla_fin1 = pd.DataFrame(pd.pivot_table(data=tabla_fin,
@@ -113,115 +158,113 @@ fig = px.line(tabla_fin1, x =  tabla_fin1.index,
 st.plotly_chart(fig, use_container_width=True)
 
 
+# Estrato
 
-# da=pd.crosstab(index=df_students['ANO'],
-#             columns=df_students['DISCAPACIDAD'])#, normalize='index')
-# axes = da.plot.bar()
-# axes.set_xlabel('Año')
-# axes.set_ylabel('Número de estudiantes')
-# axes.set_title('Discapacidad de los estudiantes por año')
-# # plt.figure(figsize = (30, 10))
-# st.pyplot(fig)
+Estado = np.array(df_students['ESTADO'])
+Ano = np.array(df_students["ANO"])
+Estrato = np.array(df_students['ESTRATO'])
+# form the cross tab
+Estrato = pd.crosstab([Ano, Estrato], Estado,  rownames=['Ano', 'Estrato'], colnames=['Estado']).apply(lambda r: r/r.sum() *100,
+                                              axis=1)[1]
+Estrato=pd.DataFrame(Estrato).reset_index()
+Estrato= Estrato[Estrato["Ano"]!=2022]
+Estrato.columns = ['Año','Estrato','% Deserción']
 
-# Variable DISCAPACIDAD: pasar de categórica a dicotómica
-df_students.loc[df_students['DISCAPACIDAD'] != 'NO APLICA', 'DISCAPACIDAD'] = 1
-df_students.loc[df_students['DISCAPACIDAD'] == 'NO APLICA', 'DISCAPACIDAD'] = 0
+ 
+fig_estrato = px.bar(Estrato, x="Año", y='% Deserción',
+             color="Estrato", barmode = 'group'
+            ,title='% de deserción por estrato para cada año')
 
-# Variable ESTRATO: Agrupar/Categorizar dado los atípicos que tiene
-df_students.loc[df_students['ESTRATO'] == 'ESTRATO 4', 'ESTRATO'] = 'ESTRATO ALTO'
-df_students.loc[df_students['ESTRATO'] == 'ESTRATO 5', 'ESTRATO'] = 'ESTRATO ALTO'
-df_students.loc[df_students['ESTRATO'] == 'ESTRATO 6', 'ESTRATO'] = 'ESTRATO ALTO'
-df_students['ESTRATO'].unique()
-df_students['ESTRATO'].value_counts()
-
-# Variable EDAD: Agrupar/Categorizar dado los atípicos que tiene
-def age_clasification(age):
-    if 0 <= age <= 5:
-        new_age = '0-5'
-    if 6 <= age <= 8:
-        new_age = '6-8'
-    if 9 <= age <= 10:
-        new_age = '9-10'
-    if 11 <= age <= 20:
-        new_age = str(age)
-    if 21 <= age <= 22:
-        new_age = '21-22'
-    if 23 <= age <= 25:
-        new_age = '23-25'
-    if 26 <= age:
-        new_age = '26+'
-    return new_age
-
-df_students['CATEGORICAL_EDAD'] = df_students['EDAD'].apply(age_clasification)
-# print(df_students['CATEGORICAL_EDAD'].unique())
-# print(df_students['CATEGORICAL_EDAD'].value_counts())
-# df_students['CATEGORICAL_EDAD']
-
-da=pd.crosstab(index=df_students['ANO'],
-            columns=df_students['DISCAPACIDAD'])#, normalize='index')
-axes = da.plot.bar()
-axes.set_xlabel('Año')
-axes.set_ylabel('Número de estudiantes')
-axes.set_title('Discapacidad de los estudiantes por año')
-plt.figure(figsize = (30, 10))
-
-# df2=df_students[df_students["DISCAPACIDAD"]== 1]
-
-# axes = df2.plot.bar()
-# axes.set_xlabel('Año')
-# axes.set_ylabel('Número de estudiantes')
-# axes.set_title('Discapacidad de los estudiantes por año')
-# plt.figure(figsize = (30, 10))
+st.plotly_chart(fig_estrato, use_container_width=True)
 
 
-da=pd.crosstab(index=df_students['ANO'],
-            columns=df_students['CATEGORICAL_EDAD'])#, normalize='index')
-axes = da.plot.bar()
-axes.set_xlabel('Año')
-axes.set_ylabel('Número de estudiantes')
-axes.set_title('Edad de los estudiantes por año')
-plt.figure(figsize = (30, 10))
+# Genero
 
-plt.figure(figsize = (20, 10))
-plt.xticks(da.index,
-                     rotation=70, size=12, horizontalalignment="right")
-plt.title("Promedio anual de estudiantes por Institución", size=16)
-plt.xlabel("Institución", size=14)
-plt.ylabel("Número de estudiantes", size=14)
-sns.barplot(data=da)
+Genero = np.array(df_students['GENERO'])
+# form the cross tab
+gen = pd.crosstab([Ano, Genero], Estado,  rownames=['Ano', 'Género'], colnames=['Estado']).apply(lambda r: r/r.sum() *100,
+                                              axis=1)[1]
 
-fig, ax1 = plt.subplots(figsize=(10, 7))
-plot = sns.barplot(x=df_students["ESTRATO"].value_counts(ascending=True).index,
-                   y=df_students["ESTRATO"].value_counts(ascending=True))
-for p in plot.patches:
-    plot.annotate(format(p.get_height(), ".0f"), (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha="center", va="center", xytext=(0, 9), textcoords="offset points")
-plot.set_xticklabels(labels=df_students["ESTRATO"].value_counts(ascending=True).index,
-                     size=12, horizontalalignment="center")
-plt.title("Número de estudiantes por Estrato", size=16)
-plt.xlabel("Estrato", size=14)
-plt.ylabel("Número de estudiantes", size=14)
-st.pyplot(fig)
+gen=pd.DataFrame(gen).reset_index()
+gen= gen[gen["Ano"]!=2022]
+gen.columns = ['Año', 'Género','% Deserción']
+
+ 
+fig_genero = px.bar(gen, x="Año", y='% Deserción',
+             color="Género", barmode = 'group'
+            ,title='% de deserción por género para cada año')
+
+st.plotly_chart(fig_genero, use_container_width=True)
 
 
+# Zona
 
-########################################################
-# Graphic test
-########################################################
+Zona = np.array(df_students['INSTITUCION_ZONA'])
+# form the cross tab
+Zona = pd.crosstab([Ano, Zona], Estado,  rownames=['Ano', 'INSTITUCION_ZONA'], colnames=['Estado']).apply(lambda r: r/r.sum() *100,
+                                              axis=1)[1]
 
-# Add histogram data
-x1 = np.random.randn(200) - 2
-x2 = np.random.randn(200)
-x3 = np.random.randn(200) + 2
+Zona=pd.DataFrame(Zona).reset_index()
+Zona= Zona[Zona["Ano"]!=2022]
+Zona.columns = ['Año', 'Zona','% Deserción']
 
-# Group data together
-hist_data = [x1, x2, x3]
+ 
+fig_zona = px.bar(Zona, x="Año", y='% Deserción',
+             color="Zona", barmode = 'group'
+            ,title='% de deserción por Zona para cada año')
 
-group_labels = ['Group 1', 'Group 2', 'Group 3']
+st.plotly_chart(fig_zona, use_container_width=True)
 
-# Create distplot with custom bin_size
-fig = ff.create_distplot(
-         hist_data, group_labels, bin_size=[.1, .25, .5])
 
-# Plot!
-st.plotly_chart(fig, use_container_width=True)
+# Caracter de la institucion
+
+Caracter = np.array(df_students['INSTITUCION_CARACTER'])
+# form the cross tab
+Caracter = pd.crosstab([Ano, Caracter], Estado,  rownames=['Ano', 'INSTITUCION_CARACTER'], colnames=['Estado']).apply(lambda r: r/r.sum() *100,
+                                              axis=1)[1]
+
+Caracter=pd.DataFrame(Caracter).reset_index()
+Caracter= Caracter[Caracter["Ano"]!=2022]
+Caracter.columns = ['Año', 'Carácter','% Deserción']
+
+ 
+fig_caracter = px.bar(Caracter, x="Año", y='% Deserción',
+             color="Carácter", barmode = 'group'
+            ,title='% de deserción por Carácter para cada año')
+
+st.plotly_chart(fig_caracter, use_container_width=True)
+
+
+# Edad
+
+Edad = np.array(df_students['CATEGORICAL_EDAD'])
+# form the cross tab
+Edad = pd.crosstab([Ano, Edad], Estado,  rownames=['Ano', 'CATEGORICAL_EDAD'], colnames=['Estado']).apply(lambda r: r/r.sum() *100,
+                                              axis=1)[1]
+
+Edad=pd.DataFrame(Edad).reset_index()
+Edad= Edad[Edad["Ano"]!=2022]
+Edad.columns = ['Año', 'Edad','% Deserción']
+
+ 
+fig_edad = px.bar(Edad, x="Año", y='% Deserción',
+             color="Edad", barmode = 'group'
+            ,title='% de deserción por grupo de edad para cada año')
+
+st.plotly_chart(fig_edad, use_container_width=True)
+
+
+# Intitucion
+
+Ins = np.array(df_students['INSTITUCION'])
+# form the cross tab
+Ins = pd.crosstab([Ano, Ins], Estado,  rownames=['Ano', 'INSTITUCION'], colnames=['Estado']).apply(lambda r: r/r.sum() *100,
+                                              axis=1)[1]
+
+Ins=pd.DataFrame(Ins).reset_index()
+Ins= Ins[Ins["Ano"]!=2022]
+Ins.columns = ['Año', 'Institución','% Deserción']
+
+fig_institucion = px.line(Ins, x='Año', y='% Deserción', color='Institución', markers=True)
+
+st.plotly_chart(fig_institucion, use_container_width=True)
