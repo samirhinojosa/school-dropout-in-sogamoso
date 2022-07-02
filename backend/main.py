@@ -21,7 +21,6 @@ def get_db():
         db.close()
 
 
-
 @app.get("/", status_code=200)
 def read_root():
     return {"Message": "Request received"}
@@ -30,3 +29,8 @@ def read_root():
 def read_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     students = crud.get_students(db, skip=skip, limit=limit)
     return students
+
+@app.get("/dynamic/", status_code=200)
+def read_dynamic_data(field: str, param: str, db: Session = Depends(get_db)):
+    data = crud.get_dynamic_data(db, field=field, param=param)
+    return data
