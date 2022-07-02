@@ -94,21 +94,20 @@ st.markdown(st_title_hr, unsafe_allow_html=True)
 df_students = pd.read_csv(os.path.join(os.path.dirname(__file__), "../to_delete/datasets/df_students.csv"))
 
 # Variable EDAD: Agrupar/Categorizar dado los atípicos que tiene
+
 def age_clasification(age):
     if 0 <= age <= 5:
-        new_age = '0-5'
-    if 6 <= age <= 8:
-        new_age = '6-8'
-    if 9 <= age <= 10:
-        new_age = '9-10'
-    if 11 <= age <= 20:
-        new_age = str(age)
-    if 21 <= age <= 22:
-        new_age = '21-22'
-    if 23 <= age <= 25:
-        new_age = '23-25'
+        new_age = '1. 0-5'
+    if 6 <= age <= 10:
+        new_age = '2. 6-10'
+    if 11 <= age <= 15:
+        new_age = '3. 11-15'
+    if 16 <= age <= 20:
+        new_age = '4. 16-20'
+    if 21 <= age <= 25:
+        new_age = '5. 21-25'
     if 26 <= age:
-        new_age = '26+'
+        new_age = '6. 26+'
     return new_age
 
 
