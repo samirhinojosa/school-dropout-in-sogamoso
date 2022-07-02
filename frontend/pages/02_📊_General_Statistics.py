@@ -91,7 +91,7 @@ st.markdown(st_title_hr, unsafe_allow_html=True)
 # Students graphs
 ########################################################
 
-df_students = pd.read_csv(os.path.join(os.path.dirname(__file__), "../datasets/df_students.csv"))
+df_students = pd.read_csv(os.path.join(os.path.dirname(__file__), "../to_delete/datasets/df_students.csv"))
 
 tabla_fin = pd.DataFrame(df_students.groupby(["ESTADO",'ANO'])['PER_ID_ANO'].count()).reset_index()
 tabla_fin1 = pd.DataFrame(pd.pivot_table(data=tabla_fin,
