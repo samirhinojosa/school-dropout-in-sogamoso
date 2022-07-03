@@ -10,12 +10,12 @@ WORKDIR /backend
 
 RUN pip install -r requirements.txt
 
-COPY . /backend
+COPY ./app /backend/app
 
 EXPOSE 8008
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8008"]
 
-RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
-RUN apt-get -y install curl
-RUN apt-get install libgomp1
+# RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
+# RUN apt-get -y install curl
+# RUN apt-get install libgomp1
