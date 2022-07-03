@@ -1,0 +1,1 @@
+gcloud run deploy t112-backend --region us-east1 --port 8008 --timeout=10m --max-instances 1 --source .
