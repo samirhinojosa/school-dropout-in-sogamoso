@@ -150,3 +150,43 @@ async def predict(id: int):
     return student
 
 
+@app.get("/api/statistics/ages")
+async def statistical_age():
+    """ 
+    EndPoint to get some statistics - ages
+    """
+
+    ages_data_not_dropout = df_students_to_predict[df_students_to_predict["ESTADO"]==0].groupby("EDAD").size()
+    ages_data_not_dropout = pd.DataFrame(ages_data_not_dropout).reset_index()
+    ages_data_not_dropout.columns = ["EDAD", "AMOUNT"]
+    ages_data_not_dropout = ages_data_not_dropout.set_index("EDAD").to_dict()["AMOUNT"]
+
+    ages_data_dropout = df_students_to_predict[df_students_to_predict["ESTADO"]==1].groupby("EDAD").size()
+    ages_data_dropout = pd.DataFrame(ages_data_dropout).reset_index()
+    ages_data_dropout.columns = ["EDAD", "AMOUNT"]
+    ages_data_dropout = ages_data_dropout.set_index("EDAD").to_dict()["AMOUNT"]
+
+    return {"ages_not_dropout" : ages_data_not_dropout, "ages_dropout" : ages_data_dropout}
+
+
+@app.get("/api/statistics/stratums")
+async def statistical_stratums():
+    """ 
+    EndPoint to get some statistics - stratums
+    """
+
+    stratum_data_not_dropout = df_students_to_predict[df_students_to_predict["ESTADO"]==0].groupby("ESTRATO").size()
+    stratum_data_not_dropout = pd.DataFrame(stratum_data_not_dropout).reset_index()
+    stratum_data_not_dropout.columns = ["ESTRATO", "AMOUNT"]
+    stratum_data_not_dropout = stratum_data_not_dropout.set_index("ESTRATO").to_dict()["AMOUNT"]
+    stratum_data_not_dropout = {int(k.replace("ESTRATO ", "")) : v for k, v in stratum_data_not_dropout.items()}
+
+    stratum_data_dropout = df_students_to_predict[df_students_to_predict["ESTADO"]==1].groupby("ESTRATO").size()
+    stratum_data_dropout = pd.DataFrame(stratum_data_dropout).reset_index()
+    stratum_data_dropout.columns = ["ESTRATO", "AMOUNT"]
+    stratum_data_dropout = stratum_data_dropout.set_index("ESTRATO").to_dict()["AMOUNT"]
+    stratum_data_dropout = {int(k.replace("ESTRATO ", "")) : v for k, v in stratum_data_dropout.items()}
+
+    return {"stratum_not_dropout" : stratum_data_not_dropout, "stratum_dropout" : stratum_data_dropout}
+
+
