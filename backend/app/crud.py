@@ -29,3 +29,10 @@ def get_general_statistics(db: Session, fields: List = None, query_filter = None
 
     return db.query(models.Students).options(load_only(*fields)).filter(models.Students.ANO < 2022).filter_by(**query_filter).all()
 
+def get_projections(db: Session, fields: List = None, query_filter = None):
+    if fields:
+        fields = fields
+    else:
+        fields = ['ANO', 'ESTRATO', 'ESTADO']
+
+    return db.query(models.Pojection).options(load_only(*fields)).filter(models.Pojection.ANO == 2022).all()
