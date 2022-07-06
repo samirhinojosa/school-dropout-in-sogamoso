@@ -1,15 +1,15 @@
-from operator import ge
 import os
 import scipy
 import requests
 import numpy as np
 import pandas as pd
-import streamlit as st
 import seaborn as sns
-import matplotlib.pyplot as plt
-import plotly.express as px
-import plotly.figure_factory as ff
 from PIL import Image
+import streamlit as st
+from operator import ge
+import plotly.express as px
+import matplotlib.pyplot as plt
+import plotly.figure_factory as ff
 
 ########################################################
 # Loading images to the website
