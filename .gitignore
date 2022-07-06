@@ -134,3 +134,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignoring SHAP model
+/frontend/models/

@@ -169,11 +169,11 @@ if result:
 
     if drop_out == "Yes":
         success_msg = "Based on the **threshold " + str(threshold) + \
-            "**, and the given information, the student **will NOT drop out**"
+            "**, and the given information, the student **will NOT DROPOUT**"
         st.success(success_msg)
     else:
         error_msg = "Based on the **threshold " + str(threshold) + \
-            "**,and the given information, the student **will DROP OUT*"
+            "**, and the given information, the student **will DROPOUT**"
         st.error(error_msg)
 
     con_student_detail = st.container()
@@ -229,25 +229,26 @@ if result:
         st.caption("&nbsp;")
         st.markdown("**Estudiante id:**")
         st.caption(data["studentId"])
+        st.markdown("**Discapacidad:**")
+        st.caption(data["disability"])
         st.markdown("**Institución:**")
         st.caption(data["institution"])
-        st.markdown("**Estrato:**")
-        st.caption(data["stratum"])
 
     with col3_csd:
         st.caption("&nbsp;")
         st.markdown("**Género:**")
         st.caption(data["gender"])
+        st.markdown("**País de origen:**")
+        st.caption(data["countryOrigin"])
         st.markdown("**Grado:**")
         st.caption(data["schoolGrade"])
-        st.markdown("**Discapacidad:**")
-        st.caption(data["disability"])
 
     with col4_csd:
         st.caption("&nbsp;")
         st.markdown("**Edad:**")
         st.caption(data["age"])
+        st.markdown("**Estrato:**")
+        st.caption(data["stratum"])
         st.markdown("**Jornada:**")
         st.caption(data["schoolDay"])
-        st.markdown("**País de origen:**")
-        st.caption(data["countryOrigin"])
+        
