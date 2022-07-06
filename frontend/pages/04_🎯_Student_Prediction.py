@@ -3,6 +3,10 @@ import streamlit.components.v1 as components
 import requests
 from PIL import Image
 import plotly.graph_objects as go
+import pandas as pd
+import joblib
+import shap
+
 
 ########################################################
 # Loading images to the website
@@ -126,6 +130,22 @@ def student_prediction(id):
     else:
         return "Error"
 
+def student_shap_prediction(id):
+    # Getting students's prediction
+    response = fetch(session, f"http://backend:8008/api/predictions/shap/students/{id}")
+    if response:
+        return response
+    else:
+        return "Error"
+
+
+########################################################
+# To show the SHAP image
+########################################################
+def st_shap(plot, height=None):
+    shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
+    components.html(shap_html, height=height)
+
 
 ########################################################
 # Sidebar section
@@ -149,11 +169,6 @@ st.sidebar.info("Select a student to **get** information related to **probabilit
 ########################################################
 # Page body
 ########################################################
-# if see_local_interpretation:
-    
-#     client_information_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📋 Client information</h3>'
-#     st.markdown(client_information_title, unsafe_allow_html=True)
-
 if result:
 
     student_information_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📋 Student information</h3>'
@@ -176,7 +191,7 @@ if result:
             "**, and the given information, the student **will DROPOUT**"
         st.error(error_msg)
 
-    con_student_detail = st.container()
+    con_student_detail, con_local_interpretation = (st.container() for i in range(2))
 
     col1_csd, col2_csd, col3_csd, col4_csd = con_student_detail.columns([2, 1, 1, 1])
 
@@ -251,4 +266,29 @@ if result:
         st.caption(data["stratum"])
         st.markdown("**Jornada:**")
         st.caption(data["schoolDay"])
-        
+
+    if see_local_interpretation:
+
+        with con_local_interpretation:
+    
+            st.caption("&nbsp;")
+            local_interpretation_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📉 Local interpretation</h3>'
+            st.markdown(local_interpretation_title, unsafe_allow_html=True)
+
+            data_shap = student_shap_prediction(student_id)
+            data_shap = pd.read_json(data_shap)
+            
+            if "explainer" not in st.session_state:
+                st.session_state["explainer"] = joblib.load("models/shap_explainer_20220705.pkl")
+            if "shap_values" not in st.session_state:
+                st.session_state["shap_values"] = joblib.load("models/shap_values_20220705.pkl")
+
+            # st.caption(data_shap)
+
+            # visualize the first prediction's explanation (use matplotlib=True to avoid Javascript)
+            # st_shap(shap.force_plot(st.session_state["explainer"].expected_value[1],
+            #                         st.session_state["shap_values"][1][data["shapPosition"],:], 
+            #                         data_shap.iloc[0,:]))
+
+
+            st_shap(shap.plots.force(st.session_state["shap_values"][data["shapPosition"]]))

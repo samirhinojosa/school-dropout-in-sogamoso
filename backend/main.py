@@ -21,6 +21,30 @@ df_students_to_predict = pd.read_csv("datasets/df_students_2022_predicted.csv")
 
 
 ########################################################
+# Columns to read on CSVs
+########################################################
+COLUMNS_DETAILS = [
+    "PER_ID", "EDAD", "GENERO", "INSTITUCION",
+    "GRADO_COD", "JORNADA", "ESTRATO",
+    "DISCAPACIDAD", "PAIS_ORIGEN"
+]
+
+COLUMNS_COMPLETE = [
+    "INSTITUCION", "GENERO", "JORNADA", "PAIS_ORIGEN", "DISCAPACIDAD",
+    "SRPA", "INSTITUCION_SECTOR", "INSTITUCION_MODELO", 
+    "INSTITUCION_APOYO_ACADEMICO_ESPECIAL", "INSTITUCION_ZONA",
+    "INSTITUCION_CARACTER", "INSTITUCION_ESTADO", 
+    "INSTITUCION_PRESTADOR_DE_SERVICIO", "EDAD_CLASIFICACION", 
+    "GRADO_COD", "ESTRATO", "INSTITUCION_TAMAÑO",
+    "INSTITUCION_NUMERO_DE_SEDES", "INSTITUCION_NIVEL_BASICA_PRIMARIA", 
+    "INSTITUCION_NIVEL_SECUNDARIA_PRIMARIA", "INSTITUCION_NIVEL_MEDIA",
+    "INSTITUCION_NIVEL_PREESCOLAR", "INSTITUCION_NIVEL_PRIMERA_INFANCIA", 
+    "INSTITUCION_ESPECIALIDAD_ACADÉMICA", "INSTITUCION_ESPECIALIDAD_AGROPECUARIO",
+    "INSTITUCION_ESPECIALIDAD_COMERCIAL", "INSTITUCION_ESPECIALIDAD_INDUSTRIAL",
+    "INSTITUCION_ESPECIALIDAD_NO_APLICA", "INSTITUCION_ESPECIALIDAD_OTRO"
+]
+
+########################################################
 # EndPoints
 ########################################################
 @app.get("/api/students")
@@ -45,15 +69,9 @@ async def student_details(id: int):
     if id not in students_id:
         raise HTTPException(status_code=404, detail="student's id not found")
     else:
-
-        COLUMNS = [
-            "PER_ID", "EDAD", "GENERO", "INSTITUCION",
-            "GRADO_COD", "JORNADA", "ESTRATO",
-            "DISCAPACIDAD", "PAIS_ORIGEN"
-        ]
-
         # Filtering by student's id
-        student_id = df_students_to_predict[COLUMNS][df_students_to_predict["PER_ID"] == id]
+        student_id = df_students_to_predict[COLUMNS_DETAILS][df_students_to_predict["PER_ID"] == id]
+        idx = df_students_to_predict[df_students_to_predict["PER_ID"]==id].index[0]
 
         for col in student_id.columns:
             globals()[col] = student_id.iloc[0, student_id.columns.get_loc(col)]
@@ -67,7 +85,8 @@ async def student_details(id: int):
             "schoolDay" : JORNADA,
             "stratum" : ESTRATO,
             "disability" : DISCAPACIDAD,
-            "countryOrigin" : PAIS_ORIGEN
+            "countryOrigin" : PAIS_ORIGEN,
+            "shapPosition" : int(idx)
         }
 
     return student
@@ -84,22 +103,6 @@ async def predict(id: int):
     if id not in students_id:
         raise HTTPException(status_code=404, detail="client's id not found")
     else:
-
-        COLUMNS = [
-            "INSTITUCION", "GENERO", "JORNADA", "PAIS_ORIGEN", "DISCAPACIDAD",
-            "SRPA", "INSTITUCION_SECTOR", "INSTITUCION_MODELO", 
-            "INSTITUCION_APOYO_ACADEMICO_ESPECIAL", "INSTITUCION_ZONA",
-            "INSTITUCION_CARACTER", "INSTITUCION_ESTADO", 
-            "INSTITUCION_PRESTADOR_DE_SERVICIO", "EDAD_CLASIFICACION", 
-            "GRADO_COD", "ESTRATO", "INSTITUCION_TAMAÑO",
-            "INSTITUCION_NUMERO_DE_SEDES", "INSTITUCION_NIVEL_BASICA_PRIMARIA", 
-            "INSTITUCION_NIVEL_SECUNDARIA_PRIMARIA", "INSTITUCION_NIVEL_MEDIA",
-            "INSTITUCION_NIVEL_PREESCOLAR", "INSTITUCION_NIVEL_PRIMERA_INFANCIA", 
-            "INSTITUCION_ESPECIALIDAD_ACADÉMICA", "INSTITUCION_ESPECIALIDAD_AGROPECUARIO",
-            "INSTITUCION_ESPECIALIDAD_COMERCIAL", "INSTITUCION_ESPECIALIDAD_INDUSTRIAL",
-            "INSTITUCION_ESPECIALIDAD_NO_APLICA", "INSTITUCION_ESPECIALIDAD_OTRO"
-        ]
-
         # Loading the model
         model = joblib.load("models/model_20220706.pkl")
 
@@ -107,7 +110,7 @@ async def predict(id: int):
 
         # Filtering by client's id
         df_prediction_by_id = df_students_to_predict[df_students_to_predict["PER_ID"] == id]
-        df_prediction_by_id = df_prediction_by_id.loc[:, COLUMNS]
+        df_prediction_by_id = df_prediction_by_id.loc[:, COLUMNS_COMPLETE]
 
         # Predicting
         result_proba = model.predict_proba(df_prediction_by_id)
@@ -125,3 +128,25 @@ async def predict(id: int):
         "probability" : result_proba[0].tolist(),
         "threshold" : threshold
     }
+
+
+@app.get("/api/predictions/shap/students/{id}")
+async def predict(id: int):
+    """ 
+    EndPoint to get the student data to plot the local interpretation with SHAP
+    """ 
+
+    students_id = df_students_to_predict["PER_ID"].tolist()
+
+    if id not in students_id:
+        raise HTTPException(status_code=404, detail="client's id not found")
+    else:
+
+        # Filtering by client's id
+        df_prediction_by_id = df_students_to_predict[df_students_to_predict["PER_ID"] == id]
+        student = df_prediction_by_id[COLUMNS_COMPLETE].copy()
+        student = student.to_json(orient="records")
+
+    return student
+
+
