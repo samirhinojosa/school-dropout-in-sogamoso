@@ -1,10 +1,13 @@
 import streamlit as st
+import streamlit.components.v1 as components
+import requests
 from PIL import Image
+import plotly.graph_objects as go
 
 ########################################################
 # Loading images to the website
 ########################################################
-icon = Image.open("asserts/sogamoso.ico")
+icon = Image.open("asserts/des.ico")
 
 ########################################################
 # General settings
@@ -71,20 +74,6 @@ config = {
     "displaylogo": False
 }
 
-########################################################
-# Sidebar XXXXXXXXXXXXXXXXXXXXXXXXXXx
-########################################################
-client_selection_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">🔎 Student selection</h3>'
-st.sidebar.markdown(client_selection_title, unsafe_allow_html=True)
-
-with st.sidebar.form('Form1'):
-    see_local_interpretation = st.checkbox("See local interpretation")
-    see_stats = st.checkbox("See stats")
-    st.warning("**Option(s)** will take more time.")
-    result = st.form_submit_button("Predict")
-
-st.sidebar.info("Select a student to **get** information related to **probability** that he/she " \
-                "**dropouts out** of school.\nIn addition, you can analyze some stats for this student.")
 
 ########################################################
 # Page information
@@ -96,9 +85,169 @@ st.markdown(st_title_hr, unsafe_allow_html=True)
 
 
 ########################################################
-# XXXXXXXXXXXXXXXXXXXXXXXXXXx
+# Session for the API
 ########################################################
-if see_local_interpretation:
+def fetch(session, url):
+
+    try:
+        result = session.get(url)
+        return result.json()
+    except Exception:
+        return {}
+
+session = requests.Session()
+
+
+########################################################
+# Functions to call the EndPoints
+########################################################
+@st.cache
+def students():
+    # Getting students Id
+    response = requests.get("http://backend:8008/api/students").json()
+    if response:
+        return response["StudentsId"]
+    else:
+        return "Error"
+
+def student_details(id):
+    # Getting students's details
+    response = fetch(session, f"http://backend:8008/api/students/{id}")
+    if response:
+        return response
+    else:
+        return "Error"
+
+def student_prediction(id):
+    # Getting students's prediction
+    response = fetch(session, f"http://backend:8008/api/predictions/students/{id}")
+    if response:
+        return response
+    else:
+        return "Error"
+
+
+########################################################
+# Sidebar section
+########################################################
+client_selection_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">🔎 Student selection</h3>'
+st.sidebar.markdown(client_selection_title, unsafe_allow_html=True)
+
+with st.sidebar.form('Form1'):
+    student_id = st.selectbox(
+        "Student Id list", students()
+    )
+    see_local_interpretation = st.checkbox("See local interpretation")
+    see_stats = st.checkbox("See stats")
+    st.warning("**Option(s)** will take more time.")
+    result = st.form_submit_button("Predict")
+
+st.sidebar.info("Select a student to **get** information related to **probability** that he/she " \
+                "**dropouts out** of school.\nIn addition, you can analyze some stats for this student.")
+
+
+########################################################
+# Page body
+########################################################
+# if see_local_interpretation:
     
-    client_information_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📋 Client information</h3>'
-    st.markdown(client_information_title, unsafe_allow_html=True)
+#     client_information_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📋 Client information</h3>'
+#     st.markdown(client_information_title, unsafe_allow_html=True)
+
+if result:
+
+    student_information_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📋 Student information</h3>'
+    st.markdown(student_information_title, unsafe_allow_html=True)
+
+    data = student_details(student_id)
+
+    prediction = student_prediction(student_id)
+    drop_out = prediction["dropOut"]
+    threshold = float(prediction["threshold"] * 100)
+    probability_value_0 = prediction["probability"][0] * 100
+    probability_value_1 = float(prediction["probability"][1] * 100)
+
+    if drop_out == "Yes":
+        success_msg = "Based on the **threshold " + str(threshold) + \
+            "**, and the given information, the student **will NOT drop out**"
+        st.success(success_msg)
+    else:
+        error_msg = "Based on the **threshold " + str(threshold) + \
+            "**,and the given information, the student **will DROP OUT*"
+        st.error(error_msg)
+
+    con_student_detail = st.container()
+
+    col1_csd, col2_csd, col3_csd, col4_csd = con_student_detail.columns([2, 1, 1, 1])
+
+    with col1_csd:
+        
+        st.caption("&nbsp;")
+
+        figP = go.Figure(
+                go.Indicator(
+                    mode = "gauge+number",
+                    value = probability_value_1,
+                    domain = {"x": [0, 1], "y": [0, 1]},
+                    gauge = {
+                        "axis": {"range": [None, 100], "tickwidth": 1, "tickcolor": "darkblue", "tick0": 0, "dtick": 20},
+                        "bar": {"color": "darkblue"},# LawnGreen
+                        "bgcolor": "white",
+                        "steps": [
+                            {"range": [0, threshold], "color": "#27AE60"},#Green
+                            {"range": [threshold, 100], "color": "#E74C3C"}#red
+                        ],
+                    }
+                )   
+            )
+
+        figP.update_layout(
+            paper_bgcolor="white",
+            font={
+                "color": "darkblue",
+                "family": "sans serif"
+            },
+            autosize=False,
+            width=500,
+            height=300,
+            margin=dict(
+                l=50, r=50, b=0, t=0, pad=0
+            ),
+            annotations=[
+                go.layout.Annotation(
+                    text=f"<b>Probability that the student will not drop out</b>",
+                    x=0.5, xanchor="center", xref="paper",
+                    y=0, yanchor="bottom", yref="paper",
+                    showarrow=False,
+                )
+            ]
+        )
+        
+        col1_csd.plotly_chart(figP, config=config, use_container_width=True)
+
+    with col2_csd:
+        st.caption("&nbsp;")
+        st.markdown("**Estudiante id:**")
+        st.caption(data["studentId"])
+        st.markdown("**Institución:**")
+        st.caption(data["institution"])
+        st.markdown("**Estrato:**")
+        st.caption(data["stratum"])
+
+    with col3_csd:
+        st.caption("&nbsp;")
+        st.markdown("**Género:**")
+        st.caption(data["gender"])
+        st.markdown("**Grado:**")
+        st.caption(data["schoolGrade"])
+        st.markdown("**Discapacidad:**")
+        st.caption(data["disability"])
+
+    with col4_csd:
+        st.caption("&nbsp;")
+        st.markdown("**Edad:**")
+        st.caption(data["age"])
+        st.markdown("**Jornada:**")
+        st.caption(data["schoolDay"])
+        st.markdown("**País de origen:**")
+        st.caption(data["countryOrigin"])
