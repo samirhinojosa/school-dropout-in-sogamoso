@@ -141,3 +141,5 @@ dmypy.json
 
 # Cofig
 *.sh
+deploy-front.sh
+.DS_Store
