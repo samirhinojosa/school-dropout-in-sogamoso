@@ -10,6 +10,10 @@ from operator import ge
 import plotly.express as px
 import matplotlib.pyplot as plt
 import plotly.figure_factory as ff
+#map
+import folium
+import branca.colormap as cmp
+from streamlit_folium import folium_static
 
 ########################################################
 # Loading images to the website
@@ -91,10 +95,11 @@ st.markdown(st_title_hr, unsafe_allow_html=True)
 
 
 ########################################################
-# Students graphs
+# Functions
 ########################################################
 
-BASE_URL="http://0.0.0.0:8008"
+# BASE_URL="http://0.0.0.0:8008"
+BASE_URL="http://34.71.10.158"
 
 def graphs(df, field):
     field_np = np.array(df[field])
@@ -113,6 +118,23 @@ def graphs(df, field):
 
     st.plotly_chart(fig, use_container_width=True)
 
+def graphs_line(df, field):
+    field_np = np.array(df[field])
+    Ano = np.array(df['ANO'])
+    Estado = np.array(df['ESTADO'])
+
+    cross = pd.crosstab([Ano, field_np], Estado,  rownames=['Ano', str(field)], colnames=['Estado']).apply(lambda r: r/r.sum() *100,
+                                              axis=1)[1]
+    cross=pd.DataFrame(cross).reset_index()
+    cross= cross[cross["Ano"]!=2022]
+    cross.columns = ['Año', str(field),'% Deserción']
+
+    title = "% de deserción por " + str(field) + " para cada año"
+    fig = px.line(cross, x="Año", y='% Deserción',
+                color=str(field), title=title)
+
+    st.plotly_chart(fig, use_container_width=True)
+
 def get_projections(QUERY_PARAMS = "?fields=ANO&fields=ESTADO"):
     API="/projections/"
     QUERY_PARAMS=str(QUERY_PARAMS)
@@ -122,6 +144,75 @@ def get_projections(QUERY_PARAMS = "?fields=ANO&fields=ESTADO"):
     else:
         return "Error"
 
+def rad_size(number):  #Probabilidad del 1 al 100, 6 posibles rangos
+    if number < 16:  #funcion que usaremos mas adelante para poner los radios y colores de las ubicaciones
+        return 1,'#D5C5FC'
+    elif 500 <= number and number< 32:
+        return 2,'#DC9248'
+    elif 5000 <= number and number< 48:
+        return 3,'#51C443'
+    elif 15000 <= number and number< 64:
+        return 4,'#436AC4'
+    elif 30000 <= number and number< 80:
+        return 5,'#CB6BE2'
+    else:
+        return 6,'#F80606'
+
+
+########################################################
+# Map
+########################################################
+
+df = pd.read_csv(os.path.join(os.path.dirname(__file__), "../datasets/instituciones_2022.csv"))
+
+year_to_filter = "2022"  #slider, año inicial, año final, año por defecto en pantalla
+#año seleccionado
+
+# if st.button('Avg'):
+
+#     total=len(df)
+#     st.subheader('Map of % dropout by institution (2013-2021)  ')  #si se oprime boton total
+
+# else:
+
+# df_year_map = df[df['Año'] == year_to_filter] #si se escoge un año particular
+# df = df_year_map
+st.subheader('Map of % dropout by institution in ' + str(year_to_filter))
+
+# Avg = df['% Deserción'].mean()
+# st.subheader(' Avg by year = ' + str(Avg))
+
+df['INSTITUCION_LATITUDE'] = df['INSTITUCION_LATITUDE'].astype(float)
+df['INSTITUCION_LONGITUD'] = df['INSTITUCION_LONGITUD'].astype(float)
+
+lat = list(df["INSTITUCION_LATITUDE"]) #latitud
+lon = list(df["INSTITUCION_LONGITUD"]) #longitud
+prob = list(df["% Deserción"]) #probabilidad
+
+
+base_map = folium.Map(location=[5.7238722,-72.9546859], zoom_start=13)
+linear = cmp.LinearColormap(
+    ['#fef0d9','#66c2a4', '#fec44f', '#ffff33','#ff7f00','#de2d26'],
+    index=[0,500, 5000, 15000, 30000,100000],
+    vmin=1, vmax=100000,
+    caption='% Dropout'  # Caption for Color scale or Legend
+)
+fg = folium.FeatureGroup(name="My Map") #nombre del mapa
+for lt, ln, prob in zip(lat, lon, prob):
+    fg.add_child(folium.CircleMarker(location=[lt, ln], radius=rad_size(prob)[0], popup="Nombre del colegio aquí \n Probability:"+str(prob),
+                                        fill_color=rad_size(prob)[1], fill=True, fill_opacity=0.7, color='Black', opacity=0.4))
+
+base_map.add_child(fg)
+
+# call to render Folium map in Streamlit
+linear.add_to(base_map)
+folium_static(base_map)
+
+
+
+########################################################
+# Students graphs
+########################################################
 
 ## Estrato
 
@@ -151,3 +242,8 @@ graphs(Caracter_df, "INSTITUCION_CARACTER")
 
 Edad_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=CATEGORICAL_EDAD"))
 graphs(Edad_df, "CATEGORICAL_EDAD")
+
+## Intitucion
+
+Institucion_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=INSTITUCION"))
+graphs_line(Institucion_df, "INSTITUCION")
