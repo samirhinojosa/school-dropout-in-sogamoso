@@ -99,8 +99,8 @@ st.markdown(st_title_hr, unsafe_allow_html=True)
 ########################################################
 
 
-# BASE_URL="http://0.0.0.0:8008"
-BASE_URL="http://34.71.10.158"
+BASE_URL="http://0.0.0.0:8008"
+# BASE_URL="http://34.71.10.158"
 
 
 def get_general_statistics(QUERY_PARAMS = "?fields=ANO&fields=ESTADO"):

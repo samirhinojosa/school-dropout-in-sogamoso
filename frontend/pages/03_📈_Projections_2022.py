@@ -118,6 +118,23 @@ def graphs(df, field):
 
     st.plotly_chart(fig, use_container_width=True)
 
+def graphs_improve(df, field, column):
+    field_np = np.array(df[field])
+    Ano = np.array(df['ANO'])
+    Estado = np.array(df['ESTADO'])
+
+    cross = pd.crosstab([Ano, field_np], Estado,  rownames=['Ano', str(field)], colnames=['Estado']).apply(lambda r: r/r.sum() *100,
+                                              axis=1)[1]
+    cross=pd.DataFrame(cross).reset_index()
+    cross.columns = ['Año', str(field),'% Deserción']
+
+    title = "Estimacion  del % de deserción por " + str(field) + " para 2022"
+    fig = px.bar(cross, x="Año", y='% Deserción',
+                color=str(field), barmode = 'group'
+                ,title=title)
+
+    column.plotly_chart(fig, use_container_width=True)
+
 def graphs_line(df, field):
     field_np = np.array(df[field])
     Ano = np.array(df['ANO'])
@@ -159,28 +176,21 @@ def rad_size(number):  #Probabilidad del 1 al 100, 6 posibles rangos
         return 6,'#F80606'
 
 
+with st.sidebar.form('Form1'):
+    see_stratum_gender = st.checkbox("Stratum and gender")
+    # see_stats = st.checkbox("See stats")
+    st.warning("**Option(s)** will take more time.")
+    result = st.form_submit_button("Mostrar")
+
 ########################################################
 # Map
 ########################################################
 
 df = pd.read_csv(os.path.join(os.path.dirname(__file__), "../datasets/instituciones_2022.csv"))
 
-year_to_filter = "2022"  #slider, año inicial, año final, año por defecto en pantalla
-#año seleccionado
+year_to_filter = "2022"  
 
-# if st.button('Avg'):
-
-#     total=len(df)
-#     st.subheader('Map of % dropout by institution (2013-2021)  ')  #si se oprime boton total
-
-# else:
-
-# df_year_map = df[df['Año'] == year_to_filter] #si se escoge un año particular
-# df = df_year_map
 st.subheader('Map of % dropout by institution in ' + str(year_to_filter))
-
-# Avg = df['% Deserción'].mean()
-# st.subheader(' Avg by year = ' + str(Avg))
 
 df['INSTITUCION_LATITUDE'] = df['INSTITUCION_LATITUDE'].astype(float)
 df['INSTITUCION_LONGITUD'] = df['INSTITUCION_LONGITUD'].astype(float)
@@ -209,22 +219,24 @@ base_map.add_child(fg)
 linear.add_to(base_map)
 folium_static(base_map)
 
-
+col1, col2 = st.columns(2)
 
 ########################################################
 # Students graphs
 ########################################################
 
-## Estrato
 
-Estrato_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=ESTRATO"))
-graphs(Estrato_df, "ESTRATO")
+if see_stratum_gender:
+    # stratum_gender_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📊 Stratum and Gender</h3>'
+    # st.markdown(stratum_gender_title, unsafe_allow_html=True)
+    ## Estrato
+    Estrato_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=ESTRATO"))
+    graphs_improve(Estrato_df, "ESTRATO", col1)
 
+    ## Genero
 
-## Genero
-
-Gender_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=GENERO"))
-graphs(Gender_df, "GENERO")
+    Gender_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=GENERO"))
+    graphs_improve(Gender_df, "GENERO", col2)
 
 
 ## Zona
