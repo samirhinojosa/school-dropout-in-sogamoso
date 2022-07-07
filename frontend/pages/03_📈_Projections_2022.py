@@ -188,6 +188,7 @@ df['INSTITUCION_LONGITUD'] = df['INSTITUCION_LONGITUD'].astype(float)
 lat = list(df["INSTITUCION_LATITUDE"]) #latitud
 lon = list(df["INSTITUCION_LONGITUD"]) #longitud
 prob = list(df["% Deserción"]) #probabilidad
+inst = list(df["INSTITUCION"]) #probabilidad
 
 
 base_map = folium.Map(location=[5.7238722,-72.9546859], zoom_start=13)
@@ -198,8 +199,8 @@ linear = cmp.LinearColormap(
     caption='% Dropout'  # Caption for Color scale or Legend
 )
 fg = folium.FeatureGroup(name="My Map") #nombre del mapa
-for lt, ln, prob in zip(lat, lon, prob):
-    fg.add_child(folium.CircleMarker(location=[lt, ln], radius=rad_size(prob)[0], popup="Nombre del colegio aquí \n Probability:"+str(prob),
+for lt, ln, prob, inst in zip(lat, lon, prob, inst):
+    fg.add_child(folium.CircleMarker(location=[lt, ln], radius=rad_size(prob)[0], popup="Institución: " + str(inst) + " \n Probability:"+str(prob),
                                         fill_color=rad_size(prob)[1], fill=True, fill_opacity=0.7, color='Black', opacity=0.4))
 
 base_map.add_child(fg)
@@ -246,4 +247,4 @@ graphs(Edad_df, "CATEGORICAL_EDAD")
 ## Intitucion
 
 Institucion_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=INSTITUCION"))
-graphs_line(Institucion_df, "INSTITUCION")
+graphs(Institucion_df, "INSTITUCION")
