@@ -143,3 +143,5 @@ dmypy.json
 *.sh
 deploy-front.sh
 .DS_Store
+
+backend/deploy.yml

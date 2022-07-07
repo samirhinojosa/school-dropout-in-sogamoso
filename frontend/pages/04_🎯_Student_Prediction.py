@@ -111,12 +111,12 @@ session = requests.Session()
 ########################################################
 
 # BASE_URL="http://0.0.0.0:8008"
-BASE_URL="http://34.71.10.158"
+BASE_URL="http://34.121.38.223"
 
 @st.cache
 def students():
     # Getting students Id
-    response = requests.get("http://34.71.10.158/api/students").json()
+    response = requests.get("http://34.121.38.223/api/students").json()
     if response:
         return response["StudentsId"]
     else:
@@ -124,7 +124,7 @@ def students():
 
 def student_details(id):
     # Getting students's details
-    response = fetch(session, f"http://34.71.10.158/api/students/{id}")
+    response = fetch(session, f"http://34.121.38.223/api/students/{id}")
     if response:
         return response
     else:
@@ -132,7 +132,7 @@ def student_details(id):
 
 def student_prediction(id):
     # Getting students's prediction
-    response = fetch(session, f"http://34.71.10.158/api/predictions/students/{id}")
+    response = fetch(session, f"http://34.121.38.223/api/predictions/students/{id}")
     if response:
         return response
     else:
@@ -140,7 +140,7 @@ def student_prediction(id):
 
 def student_shap_prediction(id):
     # Getting students's prediction
-    response = fetch(session, f"http://34.71.10.158/api/predictions/shap/students/{id}")
+    response = fetch(session, f"http://34.121.38.223/api/predictions/shap/students/{id}")
     if response:
         return response
     else:
@@ -149,7 +149,7 @@ def student_shap_prediction(id):
 @st.cache
 def statistical_ages():
     # Getting General statistics about ages
-    response = fetch(session, f"http://34.71.10.158/api/statistics/ages")
+    response = fetch(session, f"http://34.121.38.223/api/statistics/ages")
     if response:
         return response
     else:
@@ -158,7 +158,7 @@ def statistical_ages():
 @st.cache
 def statistical_stratums():
     # Getting General statistics about stratums
-    response = fetch(session, f"http://34.71.10.158/api/statistics/stratums")
+    response = fetch(session, f"http://34.121.38.223/api/statistics/stratums")
     if response:
         return response
     else:

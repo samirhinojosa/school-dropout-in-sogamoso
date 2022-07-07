@@ -99,7 +99,7 @@ st.markdown(st_title_hr, unsafe_allow_html=True)
 ########################################################
 
 # BASE_URL="http://0.0.0.0:8008"
-BASE_URL="http://34.71.10.158"
+BASE_URL="http://34.121.38.223"
 
 def graphs(df, field):
     field_np = np.array(df[field])
@@ -198,7 +198,7 @@ df['INSTITUCION_LONGITUD'] = df['INSTITUCION_LONGITUD'].astype(float)
 lat = list(df["INSTITUCION_LATITUDE"]) #latitud
 lon = list(df["INSTITUCION_LONGITUD"]) #longitud
 prob = list(df["% Deserción"]) #probabilidad
-inst = list(df["INSTITUCION"]) #probabilidad
+inst = list(df["INSTITUCION"])
 
 
 base_map = folium.Map(location=[5.7238722,-72.9546859], zoom_start=13)
