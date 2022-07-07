@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Ignoring SHAP model
+frontend/models/
+
 # C extensions
 *.so
 
