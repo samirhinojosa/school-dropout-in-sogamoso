@@ -18,7 +18,7 @@ from streamlit_folium import folium_static
 ########################################################
 # Loading images to the website
 ########################################################
-icon = Image.open("asserts/sogamoso.ico")
+icon = Image.open("asserts/des.ico")
 
 ########################################################
 # General settings

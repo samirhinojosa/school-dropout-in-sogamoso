@@ -110,6 +110,7 @@ how_to_use_text = '<ul style="list-style-type:disc;">'\
                 '</ul>'
 col3.markdown(how_to_use_text, unsafe_allow_html=True)
 
+col4.caption("&nbsp;")
 col4.image(DS4A_Sogamoso)
 
 col5.caption("&nbsp;")
