@@ -176,11 +176,11 @@ def rad_size(number):  #Probabilidad del 1 al 100, 6 posibles rangos
         return 6,'#F80606'
 
 
-with st.sidebar.form('Form1'):
-    see_stratum_gender = st.checkbox("Stratum and gender")
-    # see_stats = st.checkbox("See stats")
-    st.warning("**Option(s)** will take more time.")
-    result = st.form_submit_button("Mostrar")
+# with st.sidebar.form('Form1'):
+#     see_stratum_gender = st.checkbox("Stratum and gender")
+#     # see_stats = st.checkbox("See stats")
+#     st.warning("**Option(s)** will take more time.")
+#     result = st.form_submit_button("Mostrar")
 
 ########################################################
 # Map
@@ -220,35 +220,40 @@ linear.add_to(base_map)
 folium_static(base_map)
 
 col1, col2 = st.columns(2)
+col3, col4 = st.columns(2)
 
 ########################################################
 # Students graphs
 ########################################################
 
 
-if see_stratum_gender:
+# if see_stratum_gender:
     # stratum_gender_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📊 Stratum and Gender</h3>'
     # st.markdown(stratum_gender_title, unsafe_allow_html=True)
     ## Estrato
-    Estrato_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=ESTRATO"))
-    graphs_improve(Estrato_df, "ESTRATO", col1)
+Estrato_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=ESTRATO"))
+# graphs(Estrato_df, "ESTRATO")
+graphs_improve(Estrato_df, "ESTRATO", col1)
 
-    ## Genero
+## Genero
 
-    Gender_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=GENERO"))
-    graphs_improve(Gender_df, "GENERO", col2)
+Gender_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=GENERO"))
+# graphs(Gender_df, "GENERO")
+graphs_improve(Gender_df, "GENERO", col2)
 
 
 ## Zona
 
 Zona_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=INSTITUCION_ZONA"))
-graphs(Zona_df, "INSTITUCION_ZONA")
+# graphs(Zona_df, "INSTITUCION_ZONA")
+graphs_improve(Zona_df, "INSTITUCION_ZONA", col3)
 
 
 ## Caracter de la institucion
 
 Caracter_df = pd.DataFrame.from_dict(get_projections(QUERY_PARAMS="?fields=ANO&fields=ESTADO&fields=INSTITUCION_CARACTER"))
-graphs(Caracter_df, "INSTITUCION_CARACTER")
+# graphs(Caracter_df, "INSTITUCION_CARACTER")
+graphs_improve(Caracter_df, "INSTITUCION_CARACTER", col4)
 
 
 ## Edad
