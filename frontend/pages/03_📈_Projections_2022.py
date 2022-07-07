@@ -88,7 +88,7 @@ config = {
 ########################################################
 # Page information
 ########################################################
-st_title = '<h1 style="color:#262730; margin-bottom:0; padding: 1.25rem 0px 0rem;">Sogamoso school dropout</h1>'
+st_title = '<h1 style="color:#262730; margin-bottom:0; padding: 1.25rem 0px 0rem;">Projections 2022</h1>'
 st_title_hr = '<hr style="background-color:#F0F2F6; width:60%; text-align:left; margin-left:0; margin-top:0">'
 st.markdown(st_title, unsafe_allow_html=True)
 st.markdown(st_title_hr, unsafe_allow_html=True)
