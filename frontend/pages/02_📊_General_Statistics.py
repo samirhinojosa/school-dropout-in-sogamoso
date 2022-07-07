@@ -241,7 +241,7 @@ tabla_fin1=pd.DataFrame(tabla_fin1)
 tabla_fin1.columns = ['Año', '% Deserción']
 tabla_fin1.set_index('Año', inplace = True)
 
-fig = px.line(tabla_fin1, x=tabla_fin1.index, y="% Deserción", title='% de deserción por años', markers=True)
+fig = px.line(tabla_fin1, x=tabla_fin1.index, y="% Deserción", title='Histórico % de deserción por años', markers=True)
 st.plotly_chart(fig, use_container_width=True)
 
 
