@@ -1,4 +1,5 @@
 import os
+import sys
 import joblib
 import numpy as np
 import pandas as pd
@@ -8,10 +9,19 @@ from typing import List
 from sqlalchemy.orm import Session
 from fastapi import Depends, FastAPI, Query, HTTPException, Request, Response, File
 
-from . import crud, models
+from . import crud, modelos, custom_transformer
 from .t_response import *
 from .database import SessionLocal, engine
-from .custom_transformer import *
+
+
+# fullpath = os.path.join(os.path.dirname(__file__), 'models/model_20220706.pkl')
+# print(str(os.path.dirname))
+# print(str(os.path.abspath(os.getcwd())))
+work_path = str(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(work_path)
+# sys.path.append(r'/home/tavo/Documents/Study/school-dropout-in-sogamoso/backend/app')
+# from custom_transformer import *
+# from app import custom_transformer
 
 # try:
 #     from modx import does_something
@@ -20,7 +30,7 @@ from .custom_transformer import *
 #     from .custom_transformer import *
     # from .modx import does_something
 
-models.Base.metadata.create_all(bind=engine)
+modelos.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="School dropout Sogamoso - Backend",

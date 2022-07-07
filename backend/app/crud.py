@@ -3,14 +3,14 @@ from dataclasses import fields
 from warnings import filters
 from sqlalchemy.orm import Session, load_only
 
-from . import models
+from . import modelos
 
 
 def get_students_year(db: Session, ANO: int):
-    return db.query(models.Students).filter(models.Students.ANO == ANO).first()
+    return db.query(modelos.Students).filter(modelos.Students.ANO == ANO).first()
 
 def get_students(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Students).offset(skip).limit(limit).all()
+    return db.query(modelos.Students).offset(skip).limit(limit).all()
 
 def get_general_statistics(db: Session, fields: List = None, query_filter = None):
     if query_filter:
@@ -27,7 +27,7 @@ def get_general_statistics(db: Session, fields: List = None, query_filter = None
     else:
         fields = ['ANO', 'ESTRATO', 'ESTADO']
 
-    return db.query(models.Students).options(load_only(*fields)).filter(models.Students.ANO < 2022).filter_by(**query_filter).all()
+    return db.query(modelos.Students).options(load_only(*fields)).filter(modelos.Students.ANO < 2022).filter_by(**query_filter).all()
 
 def get_projections(db: Session, fields: List = None, query_filter = None):
     if fields:
@@ -35,4 +35,4 @@ def get_projections(db: Session, fields: List = None, query_filter = None):
     else:
         fields = ['ANO', 'ESTRATO', 'ESTADO']
 
-    return db.query(models.Pojection).options(load_only(*fields)).filter(models.Pojection.ANO == 2022).all()
+    return db.query(modelos.Pojection).options(load_only(*fields)).filter(modelos.Pojection.ANO == 2022).all()
