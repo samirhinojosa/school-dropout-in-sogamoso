@@ -247,7 +247,7 @@ if result:
             ),
             annotations=[
                 go.layout.Annotation(
-                    text=f"<b>Probability that the student will not drop out</b>",
+                    text=f"<b>Probability that the student will dropout</b>",
                     x=0.5, xanchor="center", xref="paper",
                     y=0, yanchor="bottom", yref="paper",
                     showarrow=False,
