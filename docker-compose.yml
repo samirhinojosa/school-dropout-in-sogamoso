@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+    database:
+        image: 'postgres'
+        restart: always
+        ports:
+            - '5432:5432'
+        environment:
+            - POSTGRES_PASSWORD=root
+        volumes:
+            - postgres_data:/var/lib/postgresql/data/
     backend:
         build: backend/
         volumes:
@@ -10,6 +19,8 @@ services:
         networks:
             - deploy_network
         container_name: backend
+        links:
+            - 'database'
 
     frontend:
         build: frontend/
@@ -26,3 +37,5 @@ services:
 networks:
     deploy_network:
         driver: bridge
+volumes:
+    postgres_data:
