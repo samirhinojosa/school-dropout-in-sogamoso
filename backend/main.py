@@ -1,5 +1,6 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from typing import Optional
+from schemas import Student
 
 app = FastAPI(
     title="School dropout Sogamoso - Backend",
@@ -14,7 +15,6 @@ api_router = APIRouter()
 ########################################################
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 import pandas as pd
-from fastapi import HTTPException
 
 df_students_to_predict = pd.read_csv("datasets/df_students_2022_predicted.csv")
 
@@ -58,7 +58,8 @@ async def students_id() -> dict:
 
     return {"StudentsId": students_id}
 
-@api_router.get("/api/students/{student_id}", status_code=200)
+
+@api_router.get("/api/students/{student_id}", status_code=200, response_model=Student)
 async def student_details(*, student_id: int) -> dict:
     """ 
     Fetch a single student by ID
@@ -73,7 +74,7 @@ async def student_details(*, student_id: int) -> dict:
             globals()[col] = df_student.iloc[0, df_student.columns.get_loc(col)]
         
         student = {
-            "studentId" : int(PER_ID),
+            "id" : int(PER_ID),
             "gender" : GENERO,
             "age" : int(EDAD),
             "institution" : INSTITUCION,
@@ -87,7 +88,7 @@ async def student_details(*, student_id: int) -> dict:
 
     else:
         raise HTTPException(
-            status_code=404, detail="Student with ID {student_id} not found"
+            status_code=404, detail=f"Student with ID {student_id} not found"
         )
 
     return student
@@ -110,8 +111,6 @@ async def statistics(keyword: Optional[str] = "EDAD") -> dict:
     data_dropout = data_dropout.set_index(keyword).to_dict()["AMOUNT"]
 
     return {"not_dropout" : data_not_dropout, "dropout" : data_dropout}
-
-
 
 
 # registering the router
