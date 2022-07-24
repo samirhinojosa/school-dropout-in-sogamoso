@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException
 from typing import Optional
-from schemas import Student
+from schemas import Student, StudentSearch
 
 app = FastAPI(
     title="School dropout Sogamoso - Backend",
@@ -48,27 +48,27 @@ COLUMNS_COMPLETE = [
 ########################################################
 # EndPoints
 ########################################################
-@api_router.get("/api/students", status_code=200)
-async def students_id() -> dict:
+@api_router.get("/api/students", status_code=200, response_model=StudentSearch)
+async def get_students_id() -> dict:
     """ 
     Fetch all students id
     """
     
     students_id = df_students_to_predict["PER_ID"].tolist()
 
-    return {"StudentsId": students_id}
+    return {"ids": students_id}
 
 
-@api_router.get("/api/students/{student_id}", status_code=200, response_model=Student)
-async def student_details(*, student_id: int) -> dict:
+@api_router.get("/api/students/{id}", status_code=200, response_model=Student)
+async def get_student_details(id: int) -> dict:
     """ 
     Fetch a single student by ID
     """ 
 
-    df_student = df_students_to_predict[COLUMNS_DETAILS][df_students_to_predict["PER_ID"] == student_id]
+    df_student = df_students_to_predict[COLUMNS_DETAILS][df_students_to_predict["PER_ID"] == id]
 
     if df_student.shape[0] > 0:
-        idx = df_students_to_predict[df_students_to_predict["PER_ID"]==student_id].index[0]
+        idx = df_students_to_predict[df_students_to_predict["PER_ID"]==id].index[0]
 
         for col in df_student.columns:
             globals()[col] = df_student.iloc[0, df_student.columns.get_loc(col)]
@@ -88,10 +88,33 @@ async def student_details(*, student_id: int) -> dict:
 
     else:
         raise HTTPException(
-            status_code=404, detail=f"Student with ID {student_id} not found"
+            status_code=404, detail=f"Student with ID {id} not found"
         )
 
     return student
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @api_router.get("/api/statistics/", status_code=200)

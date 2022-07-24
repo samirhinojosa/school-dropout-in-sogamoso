@@ -2,7 +2,7 @@ FROM python:3.10-slim
 
 RUN mkdir /frontend
 
-RUN pip install --upgrade pip==22.1.2
+RUN pip install --upgrade pip==22.2
 
 COPY requirements.txt /frontend
 

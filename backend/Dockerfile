@@ -2,7 +2,7 @@ FROM python:3.10-slim
 
 RUN mkdir /backend
 
-RUN pip install --upgrade pip==22.1.2
+RUN pip install --upgrade pip==22.2
 
 COPY requirements.txt /backend
 
