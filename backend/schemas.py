@@ -5,6 +5,7 @@ class Gender(str, Enum):
     MALE = "FEMENINO"
     FEMALE = "MASCULINO"
 
+
 class SchoolDay(str, Enum):
     MORNING = "MAÑANA"
     AFTERNOON = "TARDE"
@@ -12,6 +13,7 @@ class SchoolDay(str, Enum):
     UNIQUE = "ÚNICA"
     COMPLETE = "COMPLETA"
     WEEKEND = "FIN DE SEMANA"
+
 
 class Stratum(str, Enum):
     STRATUM_0 = "ESTRATO 0"
@@ -22,13 +24,16 @@ class Stratum(str, Enum):
     STRATUM_5 = "ESTRATO 5"
     STRATUM_6 = "ESTRATO 6"
 
+
 class StudentId(BaseModel):
-    id: int
+    ids: list[int] = []
 
     class Config:
         orm_mode = True
 
-class Student(StudentId):
+
+class Student(BaseModel):
+    id: int
     gender: Gender
     age: int
     institution: str
@@ -41,4 +46,3 @@ class Student(StudentId):
 
     class Config:
         orm_mode = True
-
