@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import List
 from pydantic import BaseModel
 
 class Gender(str, Enum):
@@ -23,11 +22,13 @@ class Stratum(str, Enum):
     STRATUM_5 = "ESTRATO 5"
     STRATUM_6 = "ESTRATO 6"
 
-class StudentSearch(BaseModel):
-    ids: List[int]
-
-class Student(BaseModel):
+class StudentId(BaseModel):
     id: int
+
+    class Config:
+        orm_mode = True
+
+class Student(StudentId):
     gender: Gender
     age: int
     institution: str
@@ -37,4 +38,7 @@ class Student(BaseModel):
     disability: str
     countryOrigin: str
     shapPosition: int
+
+    class Config:
+        orm_mode = True
 
