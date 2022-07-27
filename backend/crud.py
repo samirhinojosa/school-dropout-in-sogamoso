@@ -1,14 +1,13 @@
-from curses import pair_content
-from statistics import mode
-from sqlalchemy.orm import Session
+from typing import Optional, List
+from sqlalchemy.orm import Session, load_only
+from sqlalchemy import func, asc
 import pandas as pd
-import models
 import joblib
-from utils import *
-# from custom_transformer import *çs
+import models
+from custom_transformer import *
 
 
-def get_predicted_students_id(db: Session, skip: int = 0, limit: int = 1000):
+def get_students_id_to_predict(db: Session, skip: int = 0, limit: int = 1000):
     """ 
     Fetch all students id
     """ 
@@ -21,17 +20,19 @@ def get_predicted_students_id(db: Session, skip: int = 0, limit: int = 1000):
     return STUDENTS_ID
 
 
-def get_predicted_student_detail(db: Session, id: int):
+def get_summary_student_detail_by_id(db: Session, id: int):
     """ 
     Fetch a single student by ID
     """ 
 
     result = db.query(models.PredictedStudent)\
-                .with_entities(models.PredictedStudent.per_id, models.PredictedStudent.genero,
+                .with_entities(
+                    models.PredictedStudent.per_id, models.PredictedStudent.genero,
                     models.PredictedStudent.edad, models.PredictedStudent.institucion,
                     models.PredictedStudent.grado_cod, models.PredictedStudent.jornada,
                     models.PredictedStudent.estrato, models.PredictedStudent.discapacidad,
-                    models.PredictedStudent.pais_origen, models.PredictedStudent.idx) \
+                    models.PredictedStudent.pais_origen, models.PredictedStudent.idx
+                )\
                 .filter(models.PredictedStudent.per_id == id).first()
     
     student = {
@@ -50,9 +51,9 @@ def get_predicted_student_detail(db: Session, id: int):
     return student
 
 
-def get_student_prediction(db: Session, id: int):
+def get_student_by_id(db: Session, id: int):
     """ 
-    Fetch data to predict a specific student
+    Fetch student data based on id
     """ 
 
     result = db.query(models.PredictedStudent)\
@@ -80,7 +81,7 @@ def get_student_prediction(db: Session, id: int):
                     models.PredictedStudent.institucion_especialidad_no_aplica,
                     models.PredictedStudent.institucion_especialidad_otro,
                     models.PredictedStudent.idx
-                    ) \
+                )\
                 .filter(models.PredictedStudent.per_id == id).first()
 
     if result is None:
@@ -123,6 +124,24 @@ def get_student_prediction(db: Session, id: int):
                 "INSTITUCION_ESPECIALIDAD_OTRO" : result[28]
             }
 
+        return student
+
+
+def get_student_prediction(db: Session, id: int):
+    """ 
+    Fetch student prediction
+    """ 
+
+    student = get_student_by_id(db, id)
+
+    if student is None:
+
+        return student
+
+    else:
+
+        threshold = 0.632
+
         # Loading the model
         model = joblib.load("pickles/model_20220706.pkl")
 
@@ -142,3 +161,72 @@ def get_student_prediction(db: Session, id: int):
             "probability" : result_proba[0].tolist(),
             "threshold" : threshold
         }
+
+
+def get_statistics_age(db: Session):
+    """ 
+    Fetch student statistics by age
+    """ 
+
+    not_dropout = db.query(models.PredictedStudent.edad, 
+                    func.count(models.PredictedStudent.edad).label("AMOUNT")
+                )\
+                .filter(models.PredictedStudent.estado == 0)\
+                .group_by(models.PredictedStudent.edad)\
+                .order_by(models.PredictedStudent.edad.asc())\
+                .all()
+            
+    dropout = db.query(models.PredictedStudent.edad,
+                func.count(models.PredictedStudent.edad).label("AMOUNT")
+            )\
+            .filter(models.PredictedStudent.estado == 1)\
+            .group_by(models.PredictedStudent.edad)\
+            .order_by(models.PredictedStudent.edad.asc())\
+            .all()
+
+    return(not_dropout, dropout)
+
+
+def get_statistics_stratum(db: Session):
+    """ 
+    Fetch student statistics by stratum
+    """     
+
+    not_dropout = db.query(models.PredictedStudent.estrato, 
+                    func.count(models.PredictedStudent.estrato).label("AMOUNT")
+                )\
+                .filter(models.PredictedStudent.estado == 0)\
+                .group_by(models.PredictedStudent.estrato)\
+                .order_by(models.PredictedStudent.estrato.asc())\
+                .all()
+            
+    dropout = db.query(models.PredictedStudent.estrato,
+                func.count(models.PredictedStudent.estrato).label("AMOUNT")
+            )\
+            .filter(models.PredictedStudent.estado == 1)\
+            .group_by(models.PredictedStudent.estrato)\
+            .order_by(models.PredictedStudent.estrato.asc())\
+            .all()
+
+    return(not_dropout, dropout)
+
+
+def get_statistics_general(db: Session, fields: List = None, query_filter = None):
+    """ 
+    Fetch general statistics based on year and state
+    """    
+
+    if query_filter:
+        query_filter = query_filter
+    else:
+        query_filter = {}
+
+    if fields:
+        fields = fields
+    else:
+        fields = ["anyo", "estrato", "estado"]
+
+    return db.query(models.Students)\
+            .options(load_only(*fields))\
+            .filter(models.Students.anyo < 2022)\
+            .filter_by(**query_filter).all()

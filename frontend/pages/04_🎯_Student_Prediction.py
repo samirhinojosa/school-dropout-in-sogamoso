@@ -14,6 +14,7 @@ import shap
 ########################################################
 icon = Image.open("asserts/des.ico")
 
+
 ########################################################
 # General settings
 ########################################################
@@ -35,6 +36,7 @@ st.set_page_config(
         '''
     }
 )
+
 
 ########################################################
 # General styles
@@ -110,16 +112,16 @@ session = requests.Session()
 # Functions to call the EndPoints
 ########################################################
 @st.cache
-def students():
-    # Getting students Id
+def students_id_to_predict():
+    # Get students Id
     response = requests.get("http://backend:8008/api/students").json()
     if response:
         return response["ids"]
     else:
         return "Error"
 
-def student_details(id):
-    # Getting students's details
+def summary_student_detail(id):
+    # Get summary student based on id
     response = fetch(session, f"http://backend:8008/api/students/{id}")
     if response:
         return response
@@ -134,39 +136,39 @@ def student_prediction(id):
     else:
         return "Error"
 
-# def student_shap_prediction(id):
-#     # Getting students's prediction
-#     response = fetch(session, f"http://backend:8008/api/predictions/shap/students/{id}")
-#     if response:
-#         return response
-#     else:
-#         return "Error"
+def student_shap_prediction(id):
+    # Get student shap prediction
+    response = fetch(session, f"http://backend:8008/api/predictions/shap/students/{id}")
+    if response:
+        return response
+    else:
+        return "Error"
 
-# @st.cache
-# def statistical_ages():
-#     # Getting General statistics about ages
-#     response = fetch(session, f"http://backend:8008/api/statistics/ages")
-#     if response:
-#         return response
-#     else:
-#         return "Error"
+@st.cache
+def statistics_age():
+    # Getting General statistics by age
+    response = fetch(session, f"http://backend:8008/api/statistics/age/")
+    if response:
+        return response
+    else:
+        return "Error"
 
-# @st.cache
-# def statistical_stratums():
-#     # Getting General statistics about stratums
-#     response = fetch(session, f"http://backend:8008/api/statistics/stratums")
-#     if response:
-#         return response
-#     else:
-#         return "Error"
+@st.cache
+def statistics_stratum():
+    # Getting General statistics by stratum
+    response = fetch(session, f"http://backend:8008/api/statistics/stratum/")
+    if response:
+        return response
+    else:
+        return "Error"
 
 
 ########################################################
 # To show the SHAP image
 ########################################################
-# def st_shap(plot, height=None):
-#     shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
-#     components.html(shap_html, height=height)
+def st_shap(plot, height=None):
+    shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
+    components.html(shap_html, height=height)
 
 
 ########################################################
@@ -177,7 +179,7 @@ st.sidebar.markdown(client_selection_title, unsafe_allow_html=True)
 
 with st.sidebar.form('Form1'):
     student_id = st.selectbox(
-        "Student Id list", students()
+        "Student Id list", students_id_to_predict()
     )
     see_local_interpretation = st.checkbox("See local interpretation")
     see_stats = st.checkbox("See stats")
@@ -193,7 +195,7 @@ if result:
     student_information_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📋 Student information</h3>'
     st.markdown(student_information_title, unsafe_allow_html=True)
 
-    data = student_details(student_id)
+    data = summary_student_detail(student_id)
 
     prediction = student_prediction(student_id)
     drop_out = prediction["dropOut"]
@@ -284,119 +286,121 @@ if result:
         st.markdown("**Jornada:**")
         st.caption(data["schoolDay"])
 
-#     if see_local_interpretation:
+    if see_local_interpretation:
 
-#         with con_local_interpretation:
+        with con_local_interpretation:
     
-#             local_interpretation_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📉 Local interpretation</h3>'
-#             st.markdown(local_interpretation_title, unsafe_allow_html=True)
+            local_interpretation_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📉 Local interpretation</h3>'
+            st.markdown(local_interpretation_title, unsafe_allow_html=True)
 
-#             data_shap = student_shap_prediction(student_id)
-#             data_shap = pd.read_json(data_shap)
-            
-#             if "shap_values" not in st.session_state:
-#                 st.session_state["shap_values"] = joblib.load("models/shap_values_20220705.pkl")
+            if "shap_values" not in st.session_state:
+                st.session_state["shap_values"] = joblib.load("pickles/shap_values_20220705.pkl")
 
-#             st_shap(shap.plots.force(st.session_state["shap_values"][data["shapPosition"]]))
+            st_shap(shap.plots.force(st.session_state["shap_values"][data["shapPosition"]]))
     
-#     if see_stats:
+    if see_stats:
 
-#         # Defining variables to use in graphs
-#         group_labels = ["Dropout", "Not dropout"]
-#         colors=["Red", "Green"]
+        # Defining variables to use in graphs
+        group_labels = ["Dropout", "Not dropout"]
+        colors=["Red", "Green"]
 
-#         with con_stats:
+        with con_stats:
 
-#             student_statistics_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📊 Student statistics</h3>'
-#             st.markdown(student_statistics_title, unsafe_allow_html=True)
+            student_statistics_title = '<h3 style="margin-bottom:0; padding: 0.5rem 0px 1rem;">📊 Student statistics</h3>'
+            st.markdown(student_statistics_title, unsafe_allow_html=True)
 
-#             col1_gs_1, col2_gs_1 = con_stats.columns(2)
+            col1_gs_1, col2_gs_1 = con_stats.columns(2)
 
-#             with col1_gs_1:
+            with col1_gs_1:
 
-#                 if "ages" not in st.session_state:
-#                     st.session_state["ages"] = statistical_ages()
+                if "ages" not in st.session_state:
+                    st.session_state["ages"] = statistics_age()
 
-#                 ages_dropout = st.session_state["ages"]["ages_dropout"]
-#                 ages_not_dropout = st.session_state["ages"]["ages_not_dropout"]
-#                 ages_dropout_list = [int(key) for key, val in ages_dropout.items() for _ in range(val)]
-#                 ages_not_dropout_list = [int(key) for key, val in ages_not_dropout.items() for _ in range(val)]
+                ages_dropout = st.session_state["ages"]["ages_dropout"]
+                ages_dropout_temp = dict([(sub_dict["edad"], sub_dict["AMOUNT"]) for sub_dict in ages_dropout])
+                ages_not_dropout_list = [int(key) for key, val in ages_dropout_temp.items() for _ in range(val)]
 
-#                 fig_ages = ff.create_distplot([ages_dropout_list, ages_not_dropout_list],
-#                                                 group_labels, show_hist=False, show_rug=False, 
-#                                                 colors=colors)
+                ages_not_dropout = st.session_state["ages"]["ages_not_dropout"]
+                ages_not_dropout_temp = dict([(sub_dict["edad"], sub_dict["AMOUNT"]) for sub_dict in ages_not_dropout])
+                ages_dropout_list = [int(key) for key, val in ages_not_dropout_temp.items() for _ in range(val)]
 
-#                 fig_ages.update_layout(
-#                         paper_bgcolor="white",
-#                         font={
-#                             "family": "sans serif"
-#                         },
-#                         autosize=False,
-#                         width=500,
-#                         height=360,
-#                         margin=dict(
-#                             l=50, r=50, b=0, t=20, pad=0
-#                         ),
-#                         title={
-#                             "text" : "Student's age vs other students",
-#                             "y" : 1,
-#                             "x" : 0.45,
-#                             "xanchor" : "center",
-#                             "yanchor" : "top"
-#                         },
-#                         xaxis_title="Ages",
-#                         yaxis_title="density",
-#                         legend={
-#                             "traceorder" : "normal"
-#                         }
-#                     )
+                fig_ages = ff.create_distplot([ages_dropout_list, ages_not_dropout_list],
+                                                group_labels, show_hist=False, show_rug=False, 
+                                                colors=colors)
 
-#                 fig_ages.add_vline(x=data["age"], line_width=3,
-#                                 line_dash="dash", line_color="blue", annotation_text="Student's age")
+                fig_ages.update_layout(
+                        paper_bgcolor="white",
+                        font={
+                            "family": "sans serif"
+                        },
+                        autosize=False,
+                        width=500,
+                        height=360,
+                        margin=dict(
+                            l=50, r=50, b=0, t=20, pad=0
+                        ),
+                        title={
+                            "text" : "Student's age vs other students",
+                            "y" : 1,
+                            "x" : 0.45,
+                            "xanchor" : "center",
+                            "yanchor" : "top"
+                        },
+                        xaxis_title="Ages",
+                        yaxis_title="density",
+                        legend={
+                            "traceorder" : "normal"
+                        }
+                    )
 
-#                 col1_gs_1.plotly_chart(fig_ages, config=config, use_container_width=True)
+                fig_ages.add_vline(x=data["age"], line_width=3,
+                                line_dash="dash", line_color="blue", annotation_text="Student's age")
+
+                col1_gs_1.plotly_chart(fig_ages, config=config, use_container_width=True)
             
-#             with col2_gs_1:
+            with col2_gs_1:
 
-#                 if "stratums" not in st.session_state:
-#                     st.session_state["stratums"] = statistical_stratums()
+                if "stratums" not in st.session_state:
+                    st.session_state["stratums"] = statistics_stratum()
 
-#                 stratums_dropout = st.session_state["stratums"]["stratum_dropout"]
-#                 stratums_not_dropout = st.session_state["stratums"]["stratum_not_dropout"]
+                stratums_dropout = st.session_state["stratums"]["stratums_dropout"]
+                stratums_dropout_temp = dict([(sub_dict["estrato"], sub_dict["AMOUNT"]) for sub_dict in stratums_dropout])
+                stratums_dropout_list = [int(key.replace("ESTRATO ", "")) for key, val in stratums_dropout_temp.items() for _ in range(val)]
 
-#                 stratums_dropout_list = [int(key) for key, val in stratums_dropout.items() for _ in range(val)]
-#                 stratums_not_dropout_list = [int(key) for key, val in stratums_not_dropout.items() for _ in range(val)]
-                
-#                 fig_stratums = ff.create_distplot([stratums_dropout_list, stratums_not_dropout_list],
-#                                                 group_labels, show_hist=False, show_rug=False, 
-#                                                 colors=colors)
+                stratums_not_dropout = st.session_state["stratums"]["stratums_not_dropout"]
+                stratums_not_dropout_temp = dict([(sub_dict["estrato"], sub_dict["AMOUNT"]) for sub_dict in stratums_not_dropout])
+                stratums_not_dropout_list = [int(key.replace("ESTRATO ", "")) for key, val in stratums_not_dropout_temp.items() for _ in range(val)]
 
-#                 fig_stratums.update_layout(
-#                         paper_bgcolor="white",
-#                         font={
-#                             "family": "sans serif"
-#                         },
-#                         autosize=False,
-#                         width=500,
-#                         height=360,
-#                         margin=dict(
-#                             l=50, r=50, b=0, t=20, pad=0
-#                         ),
-#                         title={
-#                             "text" : "Student's stratum vs other students",
-#                             "y" : 1,
-#                             "x" : 0.45,
-#                             "xanchor" : "center",
-#                             "yanchor" : "top"
-#                         },
-#                         xaxis_title="Stratums",
-#                         yaxis_title="density",
-#                         legend={
-#                             "traceorder" : "normal"
-#                         }
-#                     )
+                fig_stratums = ff.create_distplot([stratums_dropout_list, stratums_not_dropout_list],
+                                                group_labels, show_hist=False, show_rug=False, 
+                                                colors=colors)
 
-#                 fig_stratums.add_vline(x=int(data["stratum"].replace("ESTRATO ", "")), line_width=3,
-#                                 line_dash="dash", line_color="blue", annotation_text="Student's stratum")
+                fig_stratums.update_layout(
+                        paper_bgcolor="white",
+                        font={
+                            "family": "sans serif"
+                        },
+                        autosize=False,
+                        width=500,
+                        height=360,
+                        margin=dict(
+                            l=50, r=50, b=0, t=20, pad=0
+                        ),
+                        title={
+                            "text" : "Student's stratum vs other students",
+                            "y" : 1,
+                            "x" : 0.45,
+                            "xanchor" : "center",
+                            "yanchor" : "top"
+                        },
+                        xaxis_title="Stratums",
+                        yaxis_title="density",
+                        legend={
+                            "traceorder" : "normal"
+                        }
+                    )
 
-#                 col2_gs_1.plotly_chart(fig_stratums, config=config, use_container_width=True)
+                fig_stratums.add_vline(x=int(data["stratum"].replace("ESTRATO ", "")), line_width=3,
+                                line_dash="dash", line_color="blue", annotation_text="Student's stratum")
+
+                col2_gs_1.plotly_chart(fig_stratums, config=config, use_container_width=True)

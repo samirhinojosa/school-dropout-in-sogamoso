@@ -136,4 +136,8 @@ dmypy.json
 .pyre/
 
 # Ignoring SHAP model
-/frontend/models/
+/frontend/pickles/
+
+
+# Ignoring dataset of 100mb
+/backend/datasets/df_students.csv
