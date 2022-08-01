@@ -1,20 +1,22 @@
 FROM python:3.10-slim
 
-RUN mkdir /backend
+RUN mkdir /usr/src/app
 
 RUN pip install --upgrade pip==22.2
 
-COPY requirements.txt /backend
+COPY requirements.txt /usr/src/app
 
-WORKDIR /backend
+WORKDIR /usr/src/app
 
 RUN pip install -r requirements.txt
 
-COPY . /backend
+#COPY . /usr/src/app
 
 EXPOSE 8008
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008"]
+# option: --reload only in development or local
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008", "--reload"]
+
 
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
 RUN apt-get -y install curl

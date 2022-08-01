@@ -1,20 +1,20 @@
 FROM python:3.10-slim
 
-RUN mkdir /frontend
+RUN mkdir /usr/src/app
 
 RUN pip install --upgrade pip==22.2
 
-COPY requirements.txt /frontend
+COPY requirements.txt /usr/src/app
 
-WORKDIR /frontend
+WORKDIR /usr/src/app
 
 RUN pip install -r requirements.txt
 
-COPY . /frontend
+#COPY . /usr/src/app
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "01_🏠_Home.py"]
+CMD ["streamlit", "run", "/usr/src/app/01_🏠_Home.py"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
 RUN apt-get -y install curl

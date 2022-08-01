@@ -86,7 +86,7 @@ async def read_student_by_id(id: int, db: Session = Depends(get_db)) -> dict:
 @api_router.get("/api/statistics/age/", status_code=200)
 async def read_statistics_age(db: Session = Depends(get_db)) -> dict:
     """ 
-    Fetch student statistics by age
+    Fetch student statistics by age XXXX
     """ 
 
     statistics = crud.get_statistics_age(db)

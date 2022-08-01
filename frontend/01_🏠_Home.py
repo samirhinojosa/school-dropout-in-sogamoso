@@ -5,9 +5,9 @@ from PIL import Image
 ########################################################
 # Loading images to the website
 ########################################################
-icon = Image.open("asserts/des.ico")
-des = Image.open("asserts/des.png")
-DS4A_Sogamoso = Image.open("asserts/DS4A-Sogamoso.png")
+icon = Image.open("/usr/src/app/asserts/des.ico")
+des = Image.open("/usr/src/app/asserts/des.png")
+DS4A_Sogamoso = Image.open("/usr/src/app/asserts/DS4A-Sogamoso.png")
 
 ########################################################
 # General settings

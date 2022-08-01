@@ -17,7 +17,7 @@ services:
     backend:
         build: backend/
         volumes:
-            - ./:/usr/src/app
+             - ./backend/:/usr/src/app
         ports: 
             - 8008:8008
         depends_on:
@@ -31,7 +31,7 @@ services:
     frontend:
         build: frontend/
         volumes:
-            - ./:/usr/src/app
+            - ./frontend/:/usr/src/app
         ports: 
             - 80:8501
         depends_on:
