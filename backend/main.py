@@ -3,8 +3,9 @@ import sys
 from typing import Optional, List
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine
-import schemas, crud
+from configs.database import SessionLocal, engine
+import core.schemas.student as schestu
+import crud
 
 
 app = FastAPI(
@@ -30,7 +31,7 @@ api_router = APIRouter()
 ########################################################
 # EndPoints
 ########################################################
-@api_router.get("/api/students/", status_code=200, response_model=schemas.StudentId)
+@api_router.get("/api/students/", status_code=200, response_model=schestu.StudentId)
 async def read_students_id_to_predict(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)) -> dict:
     """ 
     Fetch all students id
@@ -41,7 +42,7 @@ async def read_students_id_to_predict(skip: int = 0, limit: int = 1000, db: Sess
     return {"ids" : ids}
 
 
-@api_router.get("/api/students/{id}", status_code=200, response_model=schemas.Student)
+@api_router.get("/api/students/{id}", status_code=200, response_model=schestu.Student)
 async def read_summary_student_detail_by_id(id: int, db: Session = Depends(get_db)) -> dict:
     """ 
     Fetch a summary student based on id

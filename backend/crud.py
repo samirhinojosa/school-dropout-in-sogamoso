@@ -3,16 +3,17 @@ from sqlalchemy.orm import Session, load_only
 from sqlalchemy import func, asc
 import pandas as pd
 import joblib
-import models
-from custom_transformer import *
+import core.models.predicted_student as pre_stu
+import core.models.student as student
+from utils.custom_transformer import *
 
 
 def get_students_id_to_predict(db: Session, skip: int = 0, limit: int = 1000):
     """ 
     Fetch all students id
     """ 
-    result =  db.query(models.PredictedStudent)\
-                .with_entities(models.PredictedStudent.per_id)\
+    result =  db.query(pre_stu.PredictedStudent)\
+                .with_entities(pre_stu.PredictedStudent.per_id)\
                 .offset(skip).limit(limit).all()
 
     STUDENTS_ID = [id[0] for id in result]
@@ -25,15 +26,15 @@ def get_summary_student_detail_by_id(db: Session, id: int):
     Fetch a single student by ID
     """ 
 
-    result = db.query(models.PredictedStudent)\
+    result = db.query(pre_stu.PredictedStudent)\
                 .with_entities(
-                    models.PredictedStudent.per_id, models.PredictedStudent.genero,
-                    models.PredictedStudent.edad, models.PredictedStudent.institucion,
-                    models.PredictedStudent.grado_cod, models.PredictedStudent.jornada,
-                    models.PredictedStudent.estrato, models.PredictedStudent.discapacidad,
-                    models.PredictedStudent.pais_origen, models.PredictedStudent.idx
+                    pre_stu.PredictedStudent.per_id, pre_stu.PredictedStudent.genero,
+                    pre_stu.PredictedStudent.edad, pre_stu.PredictedStudent.institucion,
+                    pre_stu.PredictedStudent.grado_cod, pre_stu.PredictedStudent.jornada,
+                    pre_stu.PredictedStudent.estrato, pre_stu.PredictedStudent.discapacidad,
+                    pre_stu.PredictedStudent.pais_origen, pre_stu.PredictedStudent.idx
                 )\
-                .filter(models.PredictedStudent.per_id == id).first()
+                .filter(pre_stu.PredictedStudent.per_id == id).first()
     
     student = {
             "id" : result[0],
@@ -56,33 +57,33 @@ def get_student_by_id(db: Session, id: int):
     Fetch student data based on id
     """ 
 
-    result = db.query(models.PredictedStudent)\
+    result = db.query(pre_stu.PredictedStudent)\
                 .with_entities(
-                    models.PredictedStudent.institucion, models.PredictedStudent.genero,
-                    models.PredictedStudent.jornada, models.PredictedStudent.pais_origen,
-                    models.PredictedStudent.discapacidad, models.PredictedStudent.srpa,
-                    models.PredictedStudent.institucion_sector, models.PredictedStudent.institucion_modelo,
-                    models.PredictedStudent.institucion_apoyo_academico_especial, 
-                    models.PredictedStudent.institucion_zona, models.PredictedStudent.institucion_caracter,
-                    models.PredictedStudent.institucion_estado, 
-                    models.PredictedStudent.institucion_prestador_de_servicio,
-                    models.PredictedStudent.edad_clasificacion, models.PredictedStudent.grado_cod,
-                    models.PredictedStudent.estrato, models.PredictedStudent.institucion_tamanyo,
-                    models.PredictedStudent.institucion_numero_de_sedes, 
-                    models.PredictedStudent.institucion_nivel_basica_primaria,
-                    models.PredictedStudent.institucion_nivel_secundaria_primaria,
-                    models.PredictedStudent.institucion_nivel_media, 
-                    models.PredictedStudent.institucion_nivel_preescolar,
-                    models.PredictedStudent.institucion_nivel_primera_infancia,
-                    models.PredictedStudent.institucion_especialidad_academica,
-                    models.PredictedStudent.institucion_especialidad_agropecuario,
-                    models.PredictedStudent.institucion_especialidad_comercial,
-                    models.PredictedStudent.institucion_especialidad_industrial,
-                    models.PredictedStudent.institucion_especialidad_no_aplica,
-                    models.PredictedStudent.institucion_especialidad_otro,
-                    models.PredictedStudent.idx
+                    pre_stu.PredictedStudent.institucion, pre_stu.PredictedStudent.genero,
+                    pre_stu.PredictedStudent.jornada, pre_stu.PredictedStudent.pais_origen,
+                    pre_stu.PredictedStudent.discapacidad, pre_stu.PredictedStudent.srpa,
+                    pre_stu.PredictedStudent.institucion_sector, pre_stu.PredictedStudent.institucion_modelo,
+                    pre_stu.PredictedStudent.institucion_apoyo_academico_especial, 
+                    pre_stu.PredictedStudent.institucion_zona, pre_stu.PredictedStudent.institucion_caracter,
+                    pre_stu.PredictedStudent.institucion_estado, 
+                    pre_stu.PredictedStudent.institucion_prestador_de_servicio,
+                    pre_stu.PredictedStudent.edad_clasificacion, pre_stu.PredictedStudent.grado_cod,
+                    pre_stu.PredictedStudent.estrato, pre_stu.PredictedStudent.institucion_tamanyo,
+                    pre_stu.PredictedStudent.institucion_numero_de_sedes, 
+                    pre_stu.PredictedStudent.institucion_nivel_basica_primaria,
+                    pre_stu.PredictedStudent.institucion_nivel_secundaria_primaria,
+                    pre_stu.PredictedStudent.institucion_nivel_media, 
+                    pre_stu.PredictedStudent.institucion_nivel_preescolar,
+                    pre_stu.PredictedStudent.institucion_nivel_primera_infancia,
+                    pre_stu.PredictedStudent.institucion_especialidad_academica,
+                    pre_stu.PredictedStudent.institucion_especialidad_agropecuario,
+                    pre_stu.PredictedStudent.institucion_especialidad_comercial,
+                    pre_stu.PredictedStudent.institucion_especialidad_industrial,
+                    pre_stu.PredictedStudent.institucion_especialidad_no_aplica,
+                    pre_stu.PredictedStudent.institucion_especialidad_otro,
+                    pre_stu.PredictedStudent.idx
                 )\
-                .filter(models.PredictedStudent.per_id == id).first()
+                .filter(pre_stu.PredictedStudent.per_id == id).first()
 
     if result is None:
 
@@ -168,20 +169,20 @@ def get_statistics_age(db: Session):
     Fetch student statistics by age
     """ 
 
-    not_dropout = db.query(models.PredictedStudent.edad, 
-                    func.count(models.PredictedStudent.edad).label("AMOUNT")
+    not_dropout = db.query(pre_stu.PredictedStudent.edad, 
+                    func.count(pre_stu.PredictedStudent.edad).label("AMOUNT")
                 )\
-                .filter(models.PredictedStudent.estado == 0)\
-                .group_by(models.PredictedStudent.edad)\
-                .order_by(models.PredictedStudent.edad.asc())\
+                .filter(pre_stu.PredictedStudent.estado == 0)\
+                .group_by(pre_stu.PredictedStudent.edad)\
+                .order_by(pre_stu.PredictedStudent.edad.asc())\
                 .all()
             
-    dropout = db.query(models.PredictedStudent.edad,
-                func.count(models.PredictedStudent.edad).label("AMOUNT")
+    dropout = db.query(pre_stu.PredictedStudent.edad,
+                func.count(pre_stu.PredictedStudent.edad).label("AMOUNT")
             )\
-            .filter(models.PredictedStudent.estado == 1)\
-            .group_by(models.PredictedStudent.edad)\
-            .order_by(models.PredictedStudent.edad.asc())\
+            .filter(pre_stu.PredictedStudent.estado == 1)\
+            .group_by(pre_stu.PredictedStudent.edad)\
+            .order_by(pre_stu.PredictedStudent.edad.asc())\
             .all()
 
     return(not_dropout, dropout)
@@ -192,20 +193,20 @@ def get_statistics_stratum(db: Session):
     Fetch student statistics by stratum
     """     
 
-    not_dropout = db.query(models.PredictedStudent.estrato, 
-                    func.count(models.PredictedStudent.estrato).label("AMOUNT")
+    not_dropout = db.query(pre_stu.PredictedStudent.estrato, 
+                    func.count(pre_stu.PredictedStudent.estrato).label("AMOUNT")
                 )\
-                .filter(models.PredictedStudent.estado == 0)\
-                .group_by(models.PredictedStudent.estrato)\
-                .order_by(models.PredictedStudent.estrato.asc())\
+                .filter(pre_stu.PredictedStudent.estado == 0)\
+                .group_by(pre_stu.PredictedStudent.estrato)\
+                .order_by(pre_stu.PredictedStudent.estrato.asc())\
                 .all()
             
-    dropout = db.query(models.PredictedStudent.estrato,
-                func.count(models.PredictedStudent.estrato).label("AMOUNT")
+    dropout = db.query(pre_stu.PredictedStudent.estrato,
+                func.count(pre_stu.PredictedStudent.estrato).label("AMOUNT")
             )\
-            .filter(models.PredictedStudent.estado == 1)\
-            .group_by(models.PredictedStudent.estrato)\
-            .order_by(models.PredictedStudent.estrato.asc())\
+            .filter(pre_stu.PredictedStudent.estado == 1)\
+            .group_by(pre_stu.PredictedStudent.estrato)\
+            .order_by(pre_stu.PredictedStudent.estrato.asc())\
             .all()
 
     return(not_dropout, dropout)
@@ -226,7 +227,7 @@ def get_statistics_general(db: Session, fields: List = None, query_filter = None
     else:
         fields = ["anyo", "estrato", "estado"]
 
-    return db.query(models.Students)\
+    return db.query(student.Students)\
             .options(load_only(*fields))\
-            .filter(models.Students.anyo < 2022)\
+            .filter(student.Students.anyo < 2022)\
             .filter_by(**query_filter).all()
