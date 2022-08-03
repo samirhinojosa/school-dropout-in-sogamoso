@@ -3,7 +3,7 @@ import sys
 from typing import Optional, List
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from configs.database import SessionLocal, engine
+from settings.database import SessionLocal, engine
 import core.schemas.student as schestu
 import crud
 
