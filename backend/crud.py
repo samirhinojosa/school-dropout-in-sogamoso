@@ -5,7 +5,7 @@ import pandas as pd
 import joblib
 import core.models.predicted_student as pre_stu
 import core.models.student as student
-from utils.custom_transformer import *
+from custom_transformer import *
 
 
 def get_students_id_to_predict(db: Session, skip: int = 0, limit: int = 1000):
