@@ -70,18 +70,18 @@ async def read_student_prediction(id: int, db: Session = Depends(get_db)) -> dic
     return student_prediction
 
 
-@app.get("/api/predictions/shap/students/{id}", status_code=200)
-async def read_student_by_id(id: int, db: Session = Depends(get_db)) -> dict:
-    """ 
-    Fetch student data based on id, to plot the local interpretation with SHAP
-    """ 
-
-    student = crud.get_student_by_id(db, id=id)
-
-    if student is None:
-        raise HTTPException(status_code=404, detail=f"Student with ID {id} not found")
-    
-    return student
+#@app.get("/api/predictions/shap/students/{id}", status_code=200)
+#async def read_student_by_id(id: int, db: Session = Depends(get_db)) -> dict:
+#    """ 
+#    Fetch student data based on id, to plot the local interpretation with SHAP
+#    """ 
+#
+#    student = crud.get_student_by_id(db, id=id)
+#
+#   if student is None:
+#        raise HTTPException(status_code=404, detail=f"Student with ID {id} not found")
+#    
+#    return student
 
 
 @api_router.get("/api/statistics/age/", status_code=200)
