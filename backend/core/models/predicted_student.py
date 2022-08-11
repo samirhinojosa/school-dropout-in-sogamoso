@@ -5,7 +5,8 @@ from sqlalchemy import (
     Float
 )
 
-from settings.database import Base
+# from settings.database import Base
+from .base_model import Base
 
 
 class PredictedStudent(Base):
