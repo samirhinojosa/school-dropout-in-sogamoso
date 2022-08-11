@@ -19,7 +19,7 @@ services:
         volumes:
              - ./backend/:/usr/src/app
         ports: 
-            - 8008:8008
+            - '8008:8008'
         depends_on:
             - database
         links:
@@ -33,7 +33,7 @@ services:
         volumes:
             - ./frontend/:/usr/src/app
         ports: 
-            - 80:8501
+            - '80:8501'
         depends_on:
             - backend
         networks:

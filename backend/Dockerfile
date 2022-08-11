@@ -15,7 +15,7 @@ RUN pip install -r requirements.txt
 EXPOSE 8008
 
 # option: --reload only in development or local
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008", "--reload"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8008", "--reload"]
 
 
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
