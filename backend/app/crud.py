@@ -128,106 +128,106 @@ def get_summary_student_detail_by_id(db: Session, id: int):
 #         return student
 
 
-def get_student_prediction(db: Session, id: int):
-    """ 
-    Fetch student prediction
-    """ 
+# def get_student_prediction(db: Session, id: int):
+#     """ 
+#     Fetch student prediction
+#     """ 
 
-    student = get_student_by_id(db, id)
+#     student = get_student_by_id(db, id)
 
-    if student is None:
+#     if student is None:
 
-        return student
+#         return student
 
-    else:
+#     else:
 
-        threshold = 0.632
+#         threshold = 0.632
 
-        # Loading the model
-        model = joblib.load("pickles/model_20220706.pkl")
+#         # Loading the model
+#         model = joblib.load("pickles/model_20220706.pkl")
 
-        # Predicting
-        result_proba = model.predict_proba(pd.DataFrame([student]))
-        y_prob = result_proba[:, 1]
+#         # Predicting
+#         result_proba = model.predict_proba(pd.DataFrame([student]))
+#         y_prob = result_proba[:, 1]
 
-        result = (y_prob >= threshold).astype(int)
+#         result = (y_prob >= threshold).astype(int)
 
-        if (int(result[0]) == 0):
-            result = "Yes"
-        else:
-            result = "No" 
+#         if (int(result[0]) == 0):
+#             result = "Yes"
+#         else:
+#             result = "No" 
 
-        return {
-            "dropOut" : result,
-            "probability" : result_proba[0].tolist(),
-            "threshold" : threshold
-        }
+#         return {
+#             "dropOut" : result,
+#             "probability" : result_proba[0].tolist(),
+#             "threshold" : threshold
+#         }
 
 
-def get_statistics_age(db: Session):
-    """ 
-    Fetch student statistics by age
-    """ 
+# def get_statistics_age(db: Session):
+#     """ 
+#     Fetch student statistics by age
+#     """ 
 
-    not_dropout = db.query(pre_stu.PredictedStudent.edad, 
-                    func.count(pre_stu.PredictedStudent.edad).label("AMOUNT")
-                )\
-                .filter(pre_stu.PredictedStudent.estado == 0)\
-                .group_by(pre_stu.PredictedStudent.edad)\
-                .order_by(pre_stu.PredictedStudent.edad.asc())\
-                .all()
+#     not_dropout = db.query(pre_stu.PredictedStudent.edad, 
+#                     func.count(pre_stu.PredictedStudent.edad).label("AMOUNT")
+#                 )\
+#                 .filter(pre_stu.PredictedStudent.estado == 0)\
+#                 .group_by(pre_stu.PredictedStudent.edad)\
+#                 .order_by(pre_stu.PredictedStudent.edad.asc())\
+#                 .all()
             
-    dropout = db.query(pre_stu.PredictedStudent.edad,
-                func.count(pre_stu.PredictedStudent.edad).label("AMOUNT")
-            )\
-            .filter(pre_stu.PredictedStudent.estado == 1)\
-            .group_by(pre_stu.PredictedStudent.edad)\
-            .order_by(pre_stu.PredictedStudent.edad.asc())\
-            .all()
+#     dropout = db.query(pre_stu.PredictedStudent.edad,
+#                 func.count(pre_stu.PredictedStudent.edad).label("AMOUNT")
+#             )\
+#             .filter(pre_stu.PredictedStudent.estado == 1)\
+#             .group_by(pre_stu.PredictedStudent.edad)\
+#             .order_by(pre_stu.PredictedStudent.edad.asc())\
+#             .all()
 
-    return(not_dropout, dropout)
+#     return(not_dropout, dropout)
 
 
-def get_statistics_stratum(db: Session):
-    """ 
-    Fetch student statistics by stratum
-    """     
+# def get_statistics_stratum(db: Session):
+#     """ 
+#     Fetch student statistics by stratum
+#     """     
 
-    not_dropout = db.query(pre_stu.PredictedStudent.estrato, 
-                    func.count(pre_stu.PredictedStudent.estrato).label("AMOUNT")
-                )\
-                .filter(pre_stu.PredictedStudent.estado == 0)\
-                .group_by(pre_stu.PredictedStudent.estrato)\
-                .order_by(pre_stu.PredictedStudent.estrato.asc())\
-                .all()
+#     not_dropout = db.query(pre_stu.PredictedStudent.estrato, 
+#                     func.count(pre_stu.PredictedStudent.estrato).label("AMOUNT")
+#                 )\
+#                 .filter(pre_stu.PredictedStudent.estado == 0)\
+#                 .group_by(pre_stu.PredictedStudent.estrato)\
+#                 .order_by(pre_stu.PredictedStudent.estrato.asc())\
+#                 .all()
             
-    dropout = db.query(pre_stu.PredictedStudent.estrato,
-                func.count(pre_stu.PredictedStudent.estrato).label("AMOUNT")
-            )\
-            .filter(pre_stu.PredictedStudent.estado == 1)\
-            .group_by(pre_stu.PredictedStudent.estrato)\
-            .order_by(pre_stu.PredictedStudent.estrato.asc())\
-            .all()
+#     dropout = db.query(pre_stu.PredictedStudent.estrato,
+#                 func.count(pre_stu.PredictedStudent.estrato).label("AMOUNT")
+#             )\
+#             .filter(pre_stu.PredictedStudent.estado == 1)\
+#             .group_by(pre_stu.PredictedStudent.estrato)\
+#             .order_by(pre_stu.PredictedStudent.estrato.asc())\
+#             .all()
 
-    return(not_dropout, dropout)
+#     return(not_dropout, dropout)
 
 
-def get_statistics_general(db: Session, fields: List = None, query_filter = None):
-    """ 
-    Fetch general statistics based on year and state
-    """    
+# def get_statistics_general(db: Session, fields: List = None, query_filter = None):
+#     """ 
+#     Fetch general statistics based on year and state
+#     """    
 
-    if query_filter:
-        query_filter = query_filter
-    else:
-        query_filter = {}
+#     if query_filter:
+#         query_filter = query_filter
+#     else:
+#         query_filter = {}
 
-    if fields:
-        fields = fields
-    else:
-        fields = ["anyo", "estrato", "estado"]
+#     if fields:
+#         fields = fields
+#     else:
+#         fields = ["anyo", "estrato", "estado"]
 
-    return db.query(student.Students)\
-            .options(load_only(*fields))\
-            .filter(student.Students.anyo < 2022)\
-            .filter_by(**query_filter).all()
+#     return db.query(student.Students)\
+#             .options(load_only(*fields))\
+#             .filter(student.Students.anyo < 2022)\
+#             .filter_by(**query_filter).all()

@@ -32,7 +32,7 @@ api_router = APIRouter()
 # EndPoints
 ########################################################
 @api_router.get("/api/students/", status_code=200, response_model=schestu.StudentId)
-async def read_students(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)) -> dict:
+async def read_students_id(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)) -> dict:
     """ 
     Fetch all students id
     """
