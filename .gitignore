@@ -140,4 +140,4 @@ dmypy.json
 
 
 # Ignoring dataset of 100mb
-/backend/datasets/df_students.csv
+/backend/data/datasets/df_students.csv
