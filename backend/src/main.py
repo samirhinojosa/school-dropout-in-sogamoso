@@ -1,51 +1,51 @@
-import os
-import sys
-from typing import Optional, List
-from fastapi import FastAPI, APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-from src.configs.database import SessionLocal, get_db
-import src.core.schemas.student as schestu
-import src.crud as crud
+from fastapi import FastAPI, APIRouter
+from src.api.api_v1.api import api_router
+from src.configs.settings import get_settings
 
+# Runtime Settings/Environment Configuration
+settings = get_settings()
+
+description = """
+This project is part of [Data Science 4 All - DS4A](https://www.correlation-one.com/data-science-for-all-colombia) \
+training 🚀, and has two main objectives:
+
+<ul style="list-style-type:disc;">
+    <li>
+        Building a classification model that will give a prediction about the probability of a student dropouts the school.<br>
+        The model will be treated as a <strong>binary classification problem</strong>. So, 0 will be the class who does not
+        dropout the school and 1 will be the class who dropouts the school.
+    </li>
+    <li>
+        Build an interactive <strong>dashboard</strong> for <a href="https://www.sogamoso-boyaca.gov.co/" target="blank">Sogamoso municipality</a> 
+        to interpret the predictions made by the model, and improve the  knowledge to allows the making-decision.
+    </li>
+</ul>
+"""
 
 app = FastAPI(
     title="School dropout Sogamoso - Backend",
-    description="""descrpition""",
-    version="1.0.0",
-    openapi_url="/openapi.json"
+    description=description,
+    version=settings.FAST_API_VERSION,
+    openapi_url="/openapi.json",
+    contact={
+        "name": "Samir Hinojosa",
+        "url": "https://www.samirhinojosa.com/",
+        "email": "samirhinojosa@gmail.com",
+    },
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    }
 )
 
 
+app.include_router(api_router, prefix=settings.API_VERSION)
 api_router = APIRouter()
 
 
-########################################################
-# EndPoints
-########################################################
-@api_router.get("/api/students/", status_code=200, response_model=schestu.StudentId)
-async def read_students_id(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)) -> dict:
-    """ 
-    Fetch all students id
-    """
-
-    ids = crud.get_students_id(db, skip=skip, limit=limit)
-
-    return {"ids" : ids}
 
 
-@api_router.get("/api/students/{id}", status_code=200, response_model=schestu.Student)
-async def read_student_summary_by_id(id: int, db: Session = Depends(get_db)) -> dict:
-    """ 
-    Fetch a summary student based on id
-    """ 
-
-    student = crud.get_student_summary_by_id(db, id=id)
-
-    if student is None:
-        raise HTTPException(status_code=404, detail=f"Student with ID {id} not found")
-    
-    return student
-
+##########################################################
 
 # @api_router.get("/api/predictions/students/{id}", status_code=200)
 # async def get_student_prediction(id: int, db: Session = Depends(get_db)) -> dict:
@@ -111,4 +111,4 @@ async def read_student_summary_by_id(id: int, db: Session = Depends(get_db)) -> 
 
 
 # registering the router
-app.include_router(api_router)
+# app.include_router(api_router)
