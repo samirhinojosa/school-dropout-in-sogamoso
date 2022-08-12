@@ -16,7 +16,8 @@ SessionLocal = sessionmaker(
     autocommit=False, autoflush=False, bind=Engine
 )
 
-def get_db_connection():
+# Dependency
+def get_db():
     db = scoped_session(SessionLocal)
     try:
         yield db

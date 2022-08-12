@@ -3,12 +3,12 @@ from sqlalchemy.orm import Session, load_only
 from sqlalchemy import func, asc
 import pandas as pd
 import joblib
-import app.core.models.predicted_student as pre_stu
-import app.core.models.student as student
-from app.custom_transformer import *
+import src.core.models.predicted_student as pre_stu
+import src.core.models.student as student
+from src.custom_transformer import *
 
 
-def get_students_id_to_predict(db: Session, skip: int = 0, limit: int = 1000):
+def get_students_id(db: Session, skip: int = 0, limit: int = 1000):
     """ 
     Fetch all students id
     """ 
@@ -21,7 +21,7 @@ def get_students_id_to_predict(db: Session, skip: int = 0, limit: int = 1000):
     return STUDENTS_ID
 
 
-def get_summary_student_detail_by_id(db: Session, id: int):
+def get_student_summary_by_id(db: Session, id: int):
     """ 
     Fetch a single student by ID
     """ 

@@ -3,9 +3,9 @@ import sys
 from typing import Optional, List
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from app.configs.database import SessionLocal, Engine
-import app.core.schemas.student as schestu
-import app.crud as crud
+from src.configs.database import SessionLocal, get_db
+import src.core.schemas.student as schestu
+import src.crud as crud
 
 
 app = FastAPI(
@@ -14,15 +14,6 @@ app = FastAPI(
     version="1.0.0",
     openapi_url="/openapi.json"
 )
-
-
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 api_router = APIRouter()
@@ -37,18 +28,18 @@ async def read_students_id(skip: int = 0, limit: int = 1000, db: Session = Depen
     Fetch all students id
     """
 
-    ids = crud.get_students_id_to_predict(db, skip=skip, limit=limit)
+    ids = crud.get_students_id(db, skip=skip, limit=limit)
 
     return {"ids" : ids}
 
 
 @api_router.get("/api/students/{id}", status_code=200, response_model=schestu.Student)
-async def read_student_details_by_id(id: int, db: Session = Depends(get_db)) -> dict:
+async def read_student_summary_by_id(id: int, db: Session = Depends(get_db)) -> dict:
     """ 
     Fetch a summary student based on id
     """ 
 
-    student = crud.get_summary_student_detail_by_id(db, id=id)
+    student = crud.get_student_summary_by_id(db, id=id)
 
     if student is None:
         raise HTTPException(status_code=404, detail=f"Student with ID {id} not found")

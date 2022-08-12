@@ -32,8 +32,10 @@ class StudentId(BaseModel):
         orm_mode = True
 
 
-class Student(BaseModel):
+class StudentBase(BaseModel):
     id: int
+
+class Student(StudentBase):
     gender: Gender
     age: int
     institution: str
@@ -46,3 +48,29 @@ class Student(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+# class StudentBase(BaseModel):
+#     ids: int
+
+
+# class StudentId(BaseModel):
+#     ids: list[StudentBase] = []
+
+#     class Config:
+#         orm_mode = True
+
+
+# class Student(StudentBase):
+#     gender: Gender
+#     age: int
+#     institution: str
+#     schoolGrade: int
+#     schoolDay: SchoolDay
+#     stratum: Stratum
+#     disability: str
+#     countryOrigin: str
+#     shapPosition: int
+
+#     class Config:
+#         orm_mode = True
