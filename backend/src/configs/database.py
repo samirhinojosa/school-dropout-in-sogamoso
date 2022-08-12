@@ -8,9 +8,8 @@ settings = get_settings()
 
 
 # Generate Database URL
-DATABASE_URL = f"{settings.DATABASE_DIALECT}://{settings.DATABASE_USERNAME}:\
-                    {settings.DATABASE_PASSWORD}@{settings.DATABASE_HOSTNAME}:\
-                    {settings.DATABASE_PORT}/{settings.DATABASE_NAME}"
+DATABASE_URL = f"{settings.DATABASE_DIALECT}://{settings.DATABASE_USERNAME}:{settings.DATABASE_PASSWORD}"\
+                f"@{settings.DATABASE_HOSTNAME}:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}"
 
 
 Engine = create_engine(

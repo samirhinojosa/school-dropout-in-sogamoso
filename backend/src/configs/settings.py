@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     DATABASE_PASSWORD: str
     DATABASE_PORT: int
     DEBUG_MODE: bool
-    DATABASE_OTRO: str
 
     class Config:
         env_file = ".env.dev"
