@@ -7,9 +7,9 @@ from src.core.services.student import StudentService
 api_router = APIRouter()
 
 
-@api_router.get("/", status_code=200, response_model=schestu.StudentId)
+@api_router.get("", status_code=200, response_model=schestu.StudentId)
 async def read_students_id(skip: Optional[int] = 0, limit: Optional[int] = 1000,
-                            student_service: StudentService = Depends(StudentService)):
+                            student_service: StudentService = Depends()):
     """ 
     Fetch all students id
     """  

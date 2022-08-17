@@ -1,6 +1,7 @@
 from typing import Optional
 from fastapi import Depends
 from sqlalchemy.orm import Session
+from sqlalchemy import func, asc
 from src.configs.database import get_db
 import src.core.models.predicted_student as pre_stu
 
@@ -15,6 +16,13 @@ class StudentRepository:
     def get_students_id(self, skip: Optional[int] = 0, limit: Optional[int] = 1000) -> list:
         """ 
         Fetch all students id
+
+        Parameters:
+            skip (int): Pagination starting.
+            limit (int): End of pagination.
+            
+        Returns:
+            ids (list) : List of students id.
         """ 
 
         result =  self.db.query(pre_stu.PredictedStudent)\
@@ -30,6 +38,12 @@ class StudentRepository:
     def get_student_summary_by_id(self, id: int) -> list:
         """ 
         Fetch a summary student based on id
+
+        Parameters:
+            id (int): Student id.
+            
+        Returns:
+            student (list) : Summary student.
         """ 
 
         result = self.db.query(pre_stu.PredictedStudent)\
@@ -44,9 +58,16 @@ class StudentRepository:
     
         return result
 
+
     def get_student_data_to_predict_by_id(self, id: int) -> list:
         """ 
         Fetch data student to predict based on id
+
+        Parameters:
+            id (int): Student id.
+            
+        Returns:
+            student (list) : Student data necessary to predict.
         """ 
 
         result = self.db.query(pre_stu.PredictedStudent)\
@@ -79,3 +100,58 @@ class StudentRepository:
 
         return result
 
+
+    def get_statistics_age(self) -> list:
+        """ 
+        Fetch student statistics by age
+
+        Returns:
+            not_dropout (list) : Student age statistics who do not drop out.
+            dropout (list) : Student age statistics who drop out.
+        """ 
+
+        not_dropout = self.db.query(pre_stu.PredictedStudent.edad,
+                        func.count(pre_stu.PredictedStudent.edad).label("AMOUNT")
+                    )\
+                    .filter(pre_stu.PredictedStudent.estado == 0)\
+                    .group_by(pre_stu.PredictedStudent.edad)\
+                    .order_by(pre_stu.PredictedStudent.edad.asc())\
+                    .all()
+            
+        dropout = self.db.query(pre_stu.PredictedStudent.edad,
+                    func.count(pre_stu.PredictedStudent.edad).label("AMOUNT")
+                )\
+                .filter(pre_stu.PredictedStudent.estado == 1)\
+                .group_by(pre_stu.PredictedStudent.edad)\
+                .order_by(pre_stu.PredictedStudent.edad.asc())\
+                .all()
+
+        return(not_dropout, dropout)
+
+
+    def get_statistics_stratum(self) -> list:
+        """ 
+        Fetch student statistics by stratum
+
+        Returns:
+            not_dropout (list) : Student stratum statistics who do not drop out.
+            dropout (list) : Student stratum statistics who drop out.
+        """ 
+
+        not_dropout = self.db.query(pre_stu.PredictedStudent.estrato,
+                        func.count(pre_stu.PredictedStudent.estrato).label("AMOUNT")
+                    )\
+                    .filter(pre_stu.PredictedStudent.estado == 0)\
+                    .group_by(pre_stu.PredictedStudent.estrato)\
+                    .order_by(pre_stu.PredictedStudent.estrato.asc())\
+                    .all()
+            
+        dropout = self.db.query(pre_stu.PredictedStudent.estrato,
+                    func.count(pre_stu.PredictedStudent.estrato).label("AMOUNT")
+                )\
+                .filter(pre_stu.PredictedStudent.estado == 1)\
+                .group_by(pre_stu.PredictedStudent.estrato)\
+                .order_by(pre_stu.PredictedStudent.estrato.asc())\
+                .all()
+
+        return(not_dropout, dropout)

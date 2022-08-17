@@ -1,5 +1,6 @@
 from typing import Optional
 from fastapi import Depends, HTTPException
+import src.core.schemas.student as schestu
 from src.core.repositories.student import StudentRepository
 
 
@@ -15,10 +16,11 @@ class StudentService:
         Fetch all students id
 
         Parameters:
-            skip (int): Dataset to analyze.
+            skip (int): Pagination starting.
+            limit (int): End of pagination.
             
         Returns:
-            memory_usage (string) : The dataset's size on memory.
+            ids (dict) : List of students id.
         """ 
 
         return {
@@ -29,6 +31,12 @@ class StudentService:
     def get_student_summary_by_id(self, id: int) -> dict:
         """ 
         Fetch a summary student based on id
+
+        Parameters:
+            id (int): Student id.
+            
+        Returns:
+            student (dict) : Summary student.
         """ 
 
         result = self.student_repository.get_student_summary_by_id(id)
@@ -52,47 +60,33 @@ class StudentService:
             return student
 
     
-    def get_student_data_to_predict_by_id(self, id: int) -> dict:
+    def get_statistics_age(self) -> list:
         """ 
-        Fetch data student to predict based on id
+        Fetch student statistics by age
+
+        Returns:
+            (dict) : Student age statistics.
         """ 
 
-        result = self.student_repository.get_student_data_to_predict_by_id(id)
+        result = self.student_repository.get_statistics_age()
 
         if result is None:
-            raise HTTPException(status_code=404, detail=f"Student with ID {id} not found")
+            raise HTTPException(status_code=404, detail=f"Student age statistis not found")
         else:
+            return {"ages_not_dropout" : result[0], "ages_dropout" : result[1]}
 
-            student = {
-                    "INSTITUCION" : result[0],
-                    "GENERO" : result[1],
-                    "JORNADA" : result[2],
-                    "PAIS_ORIGEN" : result[3],
-                    "DISCAPACIDAD" : result[4],
-                    "SRPA" : result[5],
-                    "INSTITUCION_SECTOR" : result[6],
-                    "INSTITUCION_MODELO" : result[7],
-                    "INSTITUCION_APOYO_ACADEMICO_ESPECIAL" : result[8],
-                    "INSTITUCION_ZONA" : result[9],
-                    "INSTITUCION_CARACTER" : result[10],
-                    "INSTITUCION_ESTADO" : result[11],
-                    "INSTITUCION_PRESTADOR_DE_SERVICIO" : result[12],
-                    "EDAD_CLASIFICACION" : result[13],
-                    "GRADO_COD" : result[14],
-                    "ESTRATO" : result[15],
-                    "INSTITUCION_TAMAÑO" : result[16],
-                    "INSTITUCION_NUMERO_DE_SEDES" : result[17],
-                    "INSTITUCION_NIVEL_BASICA_PRIMARIA" : result[18],
-                    "INSTITUCION_NIVEL_SECUNDARIA_PRIMARIA" : result[19],
-                    "INSTITUCION_NIVEL_MEDIA" : result[20],
-                    "INSTITUCION_NIVEL_PREESCOLAR" : result[21],
-                    "INSTITUCION_NIVEL_PRIMERA_INFANCIA" : result[22],
-                    "INSTITUCION_ESPECIALIDAD_ACADÉMICA" : result[23],
-                    "INSTITUCION_ESPECIALIDAD_AGROPECUARIO" : result[24],
-                    "INSTITUCION_ESPECIALIDAD_COMERCIAL" : result[25],
-                    "INSTITUCION_ESPECIALIDAD_INDUSTRIAL" : result[26],
-                    "INSTITUCION_ESPECIALIDAD_NO_APLICA" : result[27],
-                    "INSTITUCION_ESPECIALIDAD_OTRO" : result[28]
-                }
 
-            return student
+    def get_statistics_stratum(self) -> list:
+        """ 
+        Fetch student statistics by stratum
+
+        Returns:
+            (dict) : Student stratum statistics.
+        """ 
+
+        result = self.student_repository.get_statistics_stratum()
+
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"Student stratum statistis not found")
+        else:
+            return {"stratums_not_dropout" : result[0], "stratums_dropout" : result[1]}
